@@ -1,0 +1,6 @@
+python==3.9
+docxtpl
+Pillow
+PyQt5
+numpy
+opencv-python
