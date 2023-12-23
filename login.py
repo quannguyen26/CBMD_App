@@ -16,6 +16,7 @@ def login(event=None):
         messagebox.showerror('Lỗi','Chưa nhập thông tin đăng nhập')
     elif user_entry.get()=='nguyenkhacquan' and password_entry.get()=='12345':
         window_login.destroy()
+        name_user="Nguyễn Khắc Quân"
         import cbmd
     else:
         messagebox.showerror("Lỗi",'Tài khoản hoặc mật khẩu không đúng')
@@ -32,6 +33,4 @@ login_button=tk.Button(login_frame,text='Đăng nhập',font=('Arial 10'),comman
                        bg='cornflowerblue',activebackground='cornflowerblue',activeforeground='cornflowerblue',cursor='hand2')
 window_login.bind('<Return>',login)
 login_button.grid(row=3,column=0,columnspan=2,pady=(10,20))
-
-
 window_login.mainloop()

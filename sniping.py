@@ -46,11 +46,11 @@ class MyWidget(QtWidgets.QWidget):
         y1 = min(self.begin.y(), self.end.y())
         x2 = max(self.begin.x(), self.end.x())
         y2 = max(self.begin.y(), self.end.y())
-
-        img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
-        img.save('capture.png')
-        img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
-
+        if x1 != x2 and y1 != y2:
+            img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+            img.save('capture.png')
+            img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
+        
         #cv2.imshow('Captured Image', img)
         #cv2.waitKey(0)
         #cv2.destroyAllWindows()

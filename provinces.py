@@ -37,7 +37,7 @@ def check_all(all,pro_lists,pro_lists_13hs,ckbt_all):
             pro_list_13h.configure(state="normal")
         ckbt_all.configure(state="normal")
 
-def even_check_buttons(name_province,frame_now,frame_13h,chks,chks_13h,extra_i,for_clear,for_clear_all,padx_):    
+def even_check_buttons(name_province,frame_now,frame_13h,chks,chks_13h,extra_i,padx_):    
     n=0
     pro_lists_now=[]
     pro_lists_13h=[]
@@ -49,8 +49,6 @@ def even_check_buttons(name_province,frame_now,frame_13h,chks,chks_13h,extra_i,f
                                   command=lambda:check_district(chks_13h[:],pro_lists_now[:],ckbt_all_13h,ckbt_all_now))
             pro_lists_now.append(pro_now)
             pro_lists_13h.append(pro_13)
-            for_clear.append(pro_now)
-            for_clear.append(pro_13)
             pro_now.grid(row=i,column=j,sticky="w",padx=padx_)
             pro_13.grid(row=i,column=j,sticky="w",padx=padx_)
             n+=1
@@ -59,15 +57,15 @@ def even_check_buttons(name_province,frame_now,frame_13h,chks,chks_13h,extra_i,f
     all_13h=tk.BooleanVar()
     ckbt_all_now=tk.Checkbutton(frame_now, text="Tất cả",variable=all_now,
                                    command=lambda:check_all(all_now,pro_lists_now,pro_lists_13h,ckbt_all_13h))
+    pro_lists_now.append(ckbt_all_now)
     ckbt_all_now.grid(row=1, column=4, sticky="w")
+    
     ckbt_all_13h=tk.Checkbutton(frame_13h, text="Tất cả",variable=all_13h,
                                command=lambda:check_all(all_13h,pro_lists_13h,pro_lists_now,ckbt_all_now))
+    pro_lists_13h.append(ckbt_all_13h)
     ckbt_all_13h.grid(row=1, column=4, sticky="w")
-    for_clear_all.append(all_now)
-    for_clear_all.append(all_13h)
-    for_clear.append(ckbt_all_now)
-    for_clear.append(ckbt_all_13h)
-def odd_check_buttons(name_province,frame_now,frame_13h,chks,chks_13h,extra_j,for_clear,for_clear_all,padx_):
+    return pro_lists_now, pro_lists_13h
+def odd_check_buttons(name_province,frame_now,frame_13h,chks,chks_13h,extra_j,padx_):
     n=0
     pro_lists_now=[]
     pro_lists_13h=[]
@@ -80,8 +78,6 @@ def odd_check_buttons(name_province,frame_now,frame_13h,chks,chks_13h,extra_j,fo
                                        command=lambda:check_district(chks_13h[:],pro_lists_now[:],ckbt_all_13h,ckbt_all_now))
                     pro_lists_now.append(pro_now)
                     pro_lists_13h.append(pro_13h)
-                    for_clear.append(pro_now)
-                    for_clear.append(pro_13h)
                     pro_now.grid(row=i,column=j,sticky="w",padx=padx_)
                     pro_13h.grid(row=i,column=j,sticky="w",padx=padx_)
                     n+=1
@@ -93,8 +89,6 @@ def odd_check_buttons(name_province,frame_now,frame_13h,chks,chks_13h,extra_j,fo
                                         command=lambda:check_district(chks_13h[:],pro_lists_now[:],ckbt_all_13h,ckbt_all_now))
                     pro_lists_now.append(pro_now)
                     pro_lists_13h.append(pro_13h)
-                    for_clear.append(pro_now)
-                    for_clear.append(pro_13h)
                     pro_now.grid(row=i,column=j,sticky="w",padx=padx_)
                     pro_13h.grid(row=i,column=j,sticky="w",padx=padx_)
                     n+=1
@@ -102,11 +96,72 @@ def odd_check_buttons(name_province,frame_now,frame_13h,chks,chks_13h,extra_j,fo
     all_13h=tk.BooleanVar()
     ckbt_all_now=tk.Checkbutton(frame_now, text="Tất cả",variable=all_now,
                    command=lambda:check_all(all_now,pro_lists_now,pro_lists_13h,ckbt_all_13h))
+    pro_lists_now.append(ckbt_all_now)
     ckbt_all_now.grid(row=1, column=4, sticky="w")
+
     ckbt_all_13h=tk.Checkbutton(frame_13h, text="Tất cả",variable=all_13h,
                   command=lambda:check_all(all_13h,pro_lists_13h,pro_lists_now,ckbt_all_now))
+    pro_lists_13h.append(ckbt_all_13h)
     ckbt_all_13h.grid(row=1, column=4, sticky="w")
-    for_clear_all.append(all_now)
-    for_clear_all.append(all_13h)
-    for_clear.append(ckbt_all_now)
-    for_clear.append(ckbt_all_13h)
+    return pro_lists_now, pro_lists_13h
+
+
+from PyQt5 import QtWidgets, QtCore, QtGui
+import tkinter as tk
+from PIL import ImageGrab
+import numpy as np
+import cv2
+
+
+class SnippingWidget(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        root = tk.Tk()
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        self.setGeometry(0, 0, screen_width, screen_height)
+        self.setWindowTitle('Ứng dụng cắt ảnh')
+        self.begin = QtCore.QPoint()
+        self.end = QtCore.QPoint()
+        self.setWindowOpacity(0.3)
+        QtWidgets.QApplication.setOverrideCursor(
+            QtGui.QCursor(QtCore.Qt.CrossCursor)
+        )
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        print('Capture the screen...')
+        self.show()
+
+    def paintEvent(self, event):
+        qp = QtGui.QPainter(self)
+        qp.setPen(QtGui.QPen(QtGui.QColor('red'), 3))
+        qp.setBrush(QtGui.QColor(128, 128, 255, 128))
+        qp.drawRect(QtCore.QRect(self.begin, self.end))
+
+    def mousePressEvent(self, event):
+        self.begin = event.pos()
+        self.end = self.begin
+        self.update()
+
+    def mouseMoveEvent(self, event):
+        self.end = event.pos()
+        self.update()
+
+    def mouseReleaseEvent(self, event):
+        x1 = min(self.begin.x(), self.end.x())
+        y1 = min(self.begin.y(), self.end.y())
+        x2 = max(self.begin.x(), self.end.x())
+        y2 = max(self.begin.y(), self.end.y())
+        if x1 != x2 and y1 != y2:
+            img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+            img.save('capture.png')
+            img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
+        self.close()
+        
+def capture_with_mouse(window):
+    
+    window.withdraw()  # Ẩn cửa sổ chính của Tkinter
+    app = QtWidgets.QApplication([])
+    root = SnippingWidget(window)
+    app.exec_()
+
+
