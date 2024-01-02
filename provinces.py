@@ -3,7 +3,7 @@ province_districts={
     "Lai Châu":["Phong Thổ","Tam Đường","Tp.Lai Châu","Tân Uyên","Than Uyên","Sìn Hồ","Nậm Nhùn","Mường Tè"],
     "Điện Biên":["Điện Biên","Điện Biên Đông","Tp.Điên Biên Phủ","Mường Ảng","Tuần Giáo","Tủa Chùa","Mường Chà","Tx.Mường Lay","Nậm Pồ","Mường Nhé"],
     "Sơn La":["Quỳnh Nhai","Thuận Châu","Sông Mã","Sốp Cộp","Mường La","Tp.Sơn La","Mai Sơn","Yên Châu","Bắc Yên","Phù Yên","Mộc Châu","Vân Hồ"],
-    "Hòa Bình":["Mai Châu","Đà Bắc","Tân Lạc","Cao Phong","Tp.Hòa Bình","Kì Sơn","Lương sơn","Kim Bôi","Lạc Sơn","Yên Thủy","Lạc Thủy"],
+    "Hòa Bình":["Mai Châu","Đà Bắc","Tân Lạc","Cao Phong","Tp.Hòa Bình","Kì Sơn","Lương Sơn","Kim Bôi","Lạc Sơn","Yên Thủy","Lạc Thủy"],
     "Lào Cai":["Bát Xát","Sa Pa","Văn Bàn","Tp.Lào Cai","Bảo Thắng","Bảo Yên","Bắc Hà","Mường Khương","Si Ma Cai"],
     "Yên Bái":["Mù Căng Chải","Văn Yên","Lục Yên","Trạm Tấu","Văn Chấn","Trấn Yên","Tx.Nghĩa Lộ","Tp.Yên Bái","Yên Bình"]
     }

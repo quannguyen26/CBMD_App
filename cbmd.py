@@ -140,19 +140,19 @@ def saving_database():
    mycursor.execute(query,val)
    cbmd_db.commit() 
 
-def delete_news():
-   cbmd_db=mysql.connector.connect(
-      host="localhost",
-      user="root",
-      password="quanlam26",
-      database="custorm")
-   mycursor = cbmd_db.cursor()
-   query = "DELETE FROM cbmd_database WHERE id_news = %s"
-   val = (number_news_ent_var.get(), )
-   mycursor.execute(query, val)
-   cbmd_db.commit()
-   clear_button()
-   lastest_idnews()
+#def delete_news():
+#   cbmd_db=mysql.connector.connect(
+#      host="localhost",
+#      user="root",
+#      password="quanlam26",
+#      database="custorm")
+#   mycursor = cbmd_db.cursor()
+#   query = "DELETE FROM cbmd_database WHERE id_news = %s"
+#   val = (number_news_ent_var.get(), )
+#   mycursor.execute(query, val)
+#   cbmd_db.commit()
+ #  clear_button()
+ #  ()
 #update in database
 def update_database():
    cbmd_db=mysql.connector.connect(
@@ -182,7 +182,7 @@ def update_database():
    mycursor.execute(query,val)
    cbmd_db.commit()
    clear_button()
-   lastest_idnews()
+   ()
 #name of provinces
 province_names =list(pr.province_districts.keys())
 name_lchau=list(pr.province_districts.keys())[0]
@@ -441,8 +441,7 @@ def my_upd(*args):
     day_time_send_var.set(date_now_ent_var.get())
 date_now_ent_var.trace('w',my_upd)
 #---------
-#person_send0=tk.Frame(save_frame)
-#person_send0.grid(row=1,column=0,pady=5,sticky="W")
+
 tk.Label(h_frame_save,text="Người phát tin:").grid(row=0,column=6, padx=(10,0))
 person_send_var=tk.StringVar()
 person_send1=Combobox(h_frame_save,textvariable=person_send_var, width=17)
@@ -450,13 +449,14 @@ person_send1['values']=("Nguyễn Khắc Quân","Trần Văn Quý")
 person_send1.current(0)
 person_send1.grid(row=0,column=7)
 
-
+dict1 = {'Zmax': 40, 'velocity': "20 – 25", 'direc':''}
+name_file=""
 #####################
-def saving_news():
+def saving_news(use_to=0):
    global name_file
-   #set for Zmax at provinces
    searh_ent_var.set("")
    lst_max = [province_names[i] for i, chk in enumerate(chks_max) if chk.get()]
+   #set for Zmax at provinces
    #######
    all_1_now=[[],[]]
    all_2_now=[[],[]]
@@ -484,33 +484,49 @@ def saving_news():
    append_list(all_chks_now,0)
    append_list(all_chks_13h,1)
    
-   #if number_news_ent.get()=="" or len(lst_max)==0 or direc_cbb.get()=="" or link_pic[0]=='link' or person_send1.get()=='' or len(all_1_1)==0:
-   #   messagebox.showerror("Lỗi","Thiếu trường dữ liệu")
-   mc1,mc2=news_finall(all_1_now[0],all_2_now[0])
-   mc3,mc4=news_finall(all_1_now[1],all_2_now[1])
-   mc5=', '.join(list(set(all_1_1+all_2_now[0]+all_2_now[1])))
-   if hail_var.get() ==1: hail=", mưa đá" 
-   else: hail=""
-   #fill Document
-   doc=DocxTemplate(resource_path("dong_tpl\\dongtpl.docx"))
-   context={
-      "num_tin":number_news_ent.get(),"day":day_time_send_var.get()[0:2],"mon":day_time_send_var.get()[3:5],
-      "year":day_time_send_var.get()[6:10],"kind_news":kind_news_cbb.get(),"h":h_weather_now.get(),"m":m_weather_now.get(),
-      "mc1":mc1,"mc2":mc2,"mc3":mc3,"mc4":mc4,"mc5":mc5,
-      "dBZ":zmax_spin.get(),"direc":direc_cbb.get(),"velo":velo_cbb.get(),"province_max":', '.join(lst_max),
-      "pic":InlineImage(doc,link_pic[0],width=Mm(120),height=Mm(110)),"dayp":date_now_ent_var.get()[0:2],"monp":date_now_ent_var.get()[3:5],
-      "yearp":date_now_ent_var.get()[6:10],"charac_pre":charac_pre.get(),"hail":hail,"h_send":h_time_send.get(),
-      "m_send":m_time_send.get(),"person_send":person_send1.get()
-   } 
-   doc.render(context)
-   #name file news
-   if kind_news_cbb.get() =="CẢNH BÁO MƯA DÔNG":
-      title_file="DONG"
+   ###### ERROR Notifications######
+   if number_news_ent.get()=="" or len(lst_max)==0 or direc_cbb.get()=="" or len(all_1_1)==0 or link_pic[0]=='capture.png':
+      messagebox.showerror("Lỗi","Thiếu trường dữ liệu")
+      #fill Document
    else:
-      title_file="MLDR"
-   name_file="PDIN_"+title_file+"_"+day_time_send_var.get()[6:10]+day_time_send_var.get()[3:5]+day_time_send_var.get()[0:2]+"_"+h_time_send.get()+"h"+m_time_send.get()+".docx"
-   file_path="news\\"+name_file
-   doc.save(file_path)
+      try:
+         mc1,mc2=news_finall(all_1_now[0],all_2_now[0])
+         mc3,mc4=news_finall(all_1_now[1],all_2_now[1])
+         mc5=', '.join(list(set(all_1_1+all_2_now[0]+all_2_now[1])))
+      except UnboundLocalError:
+         messagebox.showerror("Lỗi","Thiếu trường dữ liệu")
+      else:
+         if hail_var.get() ==1: hail=", mưa đá" 
+         else: hail=""
+         doc=DocxTemplate(resource_path("dong_tpl\\dongtpl.docx"))
+         context={
+               "num_tin":number_news_ent.get(),"day":day_time_send_var.get()[0:2],"mon":day_time_send_var.get()[3:5],
+               "year":day_time_send_var.get()[6:10],"kind_news":kind_news_cbb.get(),"h":h_weather_now.get(),"m":m_weather_now.get(),
+               "mc1":mc1,"mc2":mc2,"mc3":mc3,"mc4":mc4,"mc5":mc5,
+               "dBZ":zmax_spin.get(),"direc":direc_cbb.get(),"velo":velo_cbb.get(),"province_max":', '.join(lst_max),
+               "pic":InlineImage(doc,link_pic[0],width=Mm(120),height=Mm(110)),"dayp":date_now_ent_var.get()[0:2],"monp":date_now_ent_var.get()[3:5],
+               "yearp":date_now_ent_var.get()[6:10],"charac_pre":charac_pre.get(),"hail":hail,"h_send":h_time_send.get(),
+               "m_send":m_time_send.get(),"person_send":person_send1.get()
+         } 
+         doc.render(context)
+            #name file news
+         if kind_news_cbb.get() =="CẢNH BÁO MƯA DÔNG":
+            title_file="DONG"
+         else:
+            title_file="MLDR"
+         name_file="PDIN_"+title_file+"_"+day_time_send_var.get()[6:10]+day_time_send_var.get()[3:5]+day_time_send_var.get()[0:2]+"_"+h_time_send.get()+"h"+m_time_send.get()+".docx"
+         file_path="news\\"+name_file
+         if use_to==0:
+            try:
+               dict_update = {'Zmax': zmax_spin_var.get(),'velocity': velo_cbb.get(),'direc':direc_cbb.get()}
+               dict1.update(dict_update)
+               doc.save(file_path)
+               messagebox.showinfo("Lưu tin", "Đã lưu bản tin: "+name_file)
+            except:
+               messagebox.showerror("Lỗi","Không lưu được tin")
+         elif use_to==1:
+            doc.save(file_path)
+
 ###########################
 def clear_button():
    #ask_clear=messagebox.askokcancel("Làm mới","Bạn muốn làm mới bản tin?")
@@ -518,7 +534,7 @@ def clear_button():
    change_to_now()
    searh_ent_var.set("")
    kind_news_cbb.set("CẢNH BÁO MƯA DÔNG")
-   number_news_ent_var.set('')
+   lastest_idnews()
    h_weather_now_var.set('00')
    m_weather_now_var.set('00')
    zmax_spin_var.set(40)
@@ -536,52 +552,63 @@ def clear_button():
          j.configure(state="normal")  
       #for chk in for_clear_all_var:chk.set(False)
    charac_pre.set("mưa, mưa rào và dông")
-   hail_var.set("")
+   hail_var.set(0)
    h_time_send_var.set('00')
    m_time_send_var.set('00')
    person_send1.set('Nguyễn Khắc Quân')
    image_label.config(image='')
-   lastest_idnews()  
+   link_pic.insert(0,"capture.png")  
 def send_mail_button(ed_send):
+   def send_mail():
+      pswd = "kyvofwfivxxltzuu" 
+      email_from = "radaphadintaybac@gmail.com"
+      msg = MIMEMultipart()
+      msg['From'] = utils.formataddr(('Ra đa Pha Đin', email_from))
+      msg['To'] = ", ".join(email_list)
+      msg['Subject'] = subject
+      html = '''<p><i>**************<br>
+      Trạm Ra đa thời tiết Pha Đin<br>
+      Đài Khí tượng Thủy văn khu vực Miền núi phía Bắc<br>
+      Địa chỉ: Xã Tỏa Tình - Huyện Tuần Giáo - Tỉnh Điện Biên<br>
+      Điện thoại:  0326 086 288<br>
+      Email: radaphadintaybac@gmail.com</i></p>'''
+      msg.attach(MIMEText(html, 'html'))
+      try:
+         attachment= open("news\\"+name_file, 'rb')  # r for read and b for binary
+         # Encode as base 64
+         attachment_package = MIMEBase('application', 'octet-stream')
+         attachment_package.set_payload((attachment).read())
+         encoders.encode_base64(attachment_package)
+         attachment_package.add_header('Content-Disposition', "attachment; filename= " + name_file)
+         msg.attach(attachment_package)
+      # Cast as string
+         text = msg.as_string()
+      # Connect with the server
+         TIE_server = smtplib.SMTP("smtp.gmail.com", 587)
+         TIE_server.starttls()
+         TIE_server.login(email_from, pswd)
+         TIE_server.sendmail(email_from, email_list, text)  
+      # Close the port
+         TIE_server.quit()
+      except:
+         messagebox.showerror("Lỗi","Chưa lưu bản tin")
    #messagebox.askquestion("Gửi tin trưởng trạm","Bạn muốn làm mới bản tin?")
    subject=day_time_send_var.get()[0:2]+"."+day_time_send_var.get()[3:5]+"."+day_time_send_var.get()[6:10]+"- "+"Bản tin cảnh báo mưa dông.RDPD -"+ number_news_ent.get()
-# Set up the email lists
-   email_from = "radaphadintaybac@gmail.com"
-   if ed_send==1:
+   # Set up the email lists
+   if ed_send==0:
       email_list = ["mr.nguyenkhacquan@gmail.com","nguyenquan.flc@gmail.com"]
-      a=saving_database()
-   elif ed_send==0:
-      email_list=["mr.nguyenkhacquan@gmail.com"]
-# "kyvofwfivxxltzuu" pass mail radar   
-   pswd = "kyvofwfivxxltzuu" 
-    #mail mr.nguyenkhacquan  As shown in the video this password is now dead, left in as example only
-
-# Define the email function (dont call it email!)
-   # make a MIME object to define parts of the email
-   msg = MIMEMultipart()
-   msg['From'] = utils.formataddr(('Ra đa Pha Đin', email_from))
-   msg['To'] = ", ".join(email_list)
-   msg['Subject'] = subject
-   html = "<p><i>**************<br>Trạm Ra đa thời tiết Pha Đin<br>Đài Khí tượng Thủy văn khu vực Miền núi phía Bắc<br>Địa chỉ: Xã Tỏa Tình - Huyện Tuần Giáo - Tỉnh Điện Biên<br>Điện thoại:  0326 086 288<br>Email: radaphadintaybac@gmail.com</i></p>"
-   msg.attach(MIMEText(html, 'html'))
-   attachment= open("news\\"+name_file, 'rb')  # r for read and b for binary
-
-# Encode as base 64
-   attachment_package = MIMEBase('application', 'octet-stream')
-   attachment_package.set_payload((attachment).read())
-   encoders.encode_base64(attachment_package)
-   attachment_package.add_header('Content-Disposition', "attachment; filename= " + name_file)
-   msg.attach(attachment_package)
-# Cast as string
-   text = msg.as_string()
-# Connect with the server
-   TIE_server = smtplib.SMTP("smtp.gmail.com", 587)
-   TIE_server.starttls()
-   TIE_server.login(email_from, pswd)
-   TIE_server.sendmail(email_from, email_list, text)
-# Close the port
-   TIE_server.quit()
-
+      send_mail()
+      saving_database()
+      ask_clear=messagebox.askokcancel("Gửi tin thành công","Bạn muốn làm mới bản tin?")
+      if ask_clear:
+         clear_button()
+   elif ed_send==1:
+      dict2={'Zmax': zmax_spin_var.get(),'velocity': velo_cbb.get(),'direc':direc_cbb.get()}
+      if dict1 == dict2:
+         email_list=["mr.nguyenkhacquan@gmail.com"]
+         send_mail()
+      else:
+         messagebox.showerror("Lỗi","Chưa lưu bản tin")
 
    
 frame_save_buttons=tk.Frame(save_frame)
@@ -589,19 +616,21 @@ frame_save_buttons.grid(row=1,column=0)
 save_news=tk.Button(frame_save_buttons,text="Lưu tin",width=12, height=2,bg='lightblue',command=saving_news)
 save_news.grid(row=0,column=0,padx=15)
 send_ttram=tk.Button(frame_save_buttons,text="Gửi trưởng trạm", height=2,
-                     command=lambda:send_mail_button(0),bg='lightblue')
+                     command=lambda:send_mail_button(1),bg='lightblue')
 send_ttram.grid(row=0,column=1,padx=15)
 send_all=tk.Button(frame_save_buttons,text="Gửi tin", width=12,height=2,bg='lightblue', 
-                   command=saving_database)#command=lambda:send_mail_button(1))
+                   command=lambda:send_mail_button(0))
 send_all.grid(row=0,column=2,padx=15)
 reset_news=tk.Button(frame_save_buttons,text="Làm mới",width=12, height=2,command=clear_button,bg='lightblue')
 reset_news.grid(row=1,column=0,padx=15,pady=5)
-delete_news=tk.Button(frame_save_buttons,text="Xóa tin", height=2,width=12,
-                     bg='lightblue',command=delete_news)
-delete_news.grid(row=1,column=1,padx=15,pady=5)
-
-update_news=tk.Button(frame_save_buttons,text="Cập nhật", height=2,width=12,
+delete_news=tk.Button(frame_save_buttons,text="Cập nhật", height=2,width=12,
                      bg='lightblue',command=update_database)
+delete_news.grid(row=1,column=1,padx=15,pady=5)
+def logout():
+   window.destroy()
+   sub=subprocess.Popen(['python' , 'login.py'],stdout=subprocess.PIPE)
+update_news=tk.Button(frame_save_buttons,text="Đăng xuất", height=2,width=12,
+                     bg='lightblue',command=logout)
 update_news.grid(row=1,column=2,padx=15,pady=5)
 
 

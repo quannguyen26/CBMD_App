@@ -50,10 +50,6 @@ class MyWidget(QtWidgets.QWidget):
             img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
             img.save('capture.png')
             img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
-        
-        #cv2.imshow('Captured Image', img)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     window1 = MyWidget()

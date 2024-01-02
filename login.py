@@ -24,7 +24,8 @@ def login(event=None):
 tk.Label(login_frame,text="ĐĂNG NHẬP",font=('Arial 20')).grid(row=0,column=0,columnspan=2,padx=20,pady=(20,10))
 tk.Label(login_frame,text="Tên đăng nhập:",font=('Arial 10')).grid(row=1,column=0,pady=5,padx=(20,0))
 tk.Label(login_frame,text='Mật khẩu:',font=('Arial 10')).grid(row=2,column=0,sticky='e',pady=5)
-user_entry=tk.Entry(login_frame,font=('Arial 10'))
+user_var=tk.StringVar
+user_entry=tk.Entry(login_frame,font=('Arial 10'),textvariable=user_var)
 user_entry.grid(row=1,column=1,pady=5,padx=(0,30))
 user_entry.focus()
 password_entry=tk.Entry(login_frame,show='*',font=('Arial 10'))
