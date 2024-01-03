@@ -192,7 +192,7 @@ name_hbinh=list(pr.province_districts.keys())[3]
 name_lcai=list(pr.province_districts.keys())[4]
 name_ybai=list(pr.province_districts.keys())[5]
 #######
-now_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+#now_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 window=tk.Tk()
 window.title("Phần mềm ra bản tin cảnh báo mưa dông")
 window.config(bg="skyblue",padx=0,pady=0)
@@ -449,7 +449,16 @@ person_send1['values']=("Nguyễn Khắc Quân","Trần Văn Quý")
 person_send1.current(0)
 person_send1.grid(row=0,column=7)
 
-dict1 = {'Zmax': 40, 'velocity': "20 – 25", 'direc':''}
+# Dict để xác định các thay đổi cần được lưu
+dict1 = {'id_news':0,'now_date':'','kind_news':'','h_wea_now':'','m_wea_now':'','zmax': 0, 'velocity':'', 'direc':'',
+         'charac_pre':'','hail':0,'send_date':'','h_send':'','m_send':'','per_send':'','m_wea_now':''}
+def dict_update():
+   dict={'id_news':number_news_ent_var.get(),'now_date':date_now_ent_var.get(),'kind_news':kind_news_cbb.get(),
+                              'h_wea_now':h_weather_now_var.get(),'m_wea_now':m_weather_now_var.get(),
+                              'zmax': zmax_spin_var.get(),'velocity': velo_cbb.get(),'direc':direc_cbb.get()
+                              ,'charac_pre':charac_pre.get(),'hail':hail_var.get(),'send_date':day_time_send_var.get(),
+                              'h_send':h_time_send_var.get(),'m_send':m_time_send_var.get(),'per_send':person_send_var.get()}
+   return dict
 name_file=""
 #####################
 def saving_news(use_to=0):
@@ -518,14 +527,16 @@ def saving_news(use_to=0):
          file_path="news\\"+name_file
          if use_to==0:
             try:
-               dict_update = {'Zmax': zmax_spin_var.get(),'velocity': velo_cbb.get(),'direc':direc_cbb.get()}
-               dict1.update(dict_update)
+               update = dict_update()
+               dict1.update(update)
                doc.save(file_path)
                messagebox.showinfo("Lưu tin", "Đã lưu bản tin: "+name_file)
             except:
                messagebox.showerror("Lỗi","Không lưu được tin")
          elif use_to==1:
             doc.save(file_path)
+
+
 
 ###########################
 def clear_button():
@@ -535,6 +546,7 @@ def clear_button():
    searh_ent_var.set("")
    kind_news_cbb.set("CẢNH BÁO MƯA DÔNG")
    lastest_idnews()
+   date_now_ent_var.set(datetime.now().strftime("%d/%m/%Y"))
    h_weather_now_var.set('00')
    m_weather_now_var.set('00')
    zmax_spin_var.set(40)
@@ -553,11 +565,14 @@ def clear_button():
       #for chk in for_clear_all_var:chk.set(False)
    charac_pre.set("mưa, mưa rào và dông")
    hail_var.set(0)
+   day_time_send_var.set(datetime.now().strftime("%d/%m/%Y"))
    h_time_send_var.set('00')
    m_time_send_var.set('00')
    person_send1.set('Nguyễn Khắc Quân')
    image_label.config(image='')
-   link_pic.insert(0,"capture.png")  
+   link_pic.insert(0,"capture.png")
+   #thiếu update cho dict1 so sánh trả về dict1 gốc
+     
 def send_mail_button(ed_send):
    def send_mail():
       pswd = "kyvofwfivxxltzuu" 
@@ -603,7 +618,7 @@ def send_mail_button(ed_send):
       if ask_clear:
          clear_button()
    elif ed_send==1:
-      dict2={'Zmax': zmax_spin_var.get(),'velocity': velo_cbb.get(),'direc':direc_cbb.get()}
+      dict2=dict_update()
       if dict1 == dict2:
          email_list=["mr.nguyenkhacquan@gmail.com"]
          send_mail()
