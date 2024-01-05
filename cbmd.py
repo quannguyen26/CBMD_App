@@ -317,6 +317,7 @@ lchau_frame_13h.grid(row=0,column=1,pady=(0,5),sticky='w')
 #var
 chks_lc = [tk.BooleanVar() for i in pr.province_districts["Lai Châu"]]
 chks_lc_13h = [tk.BooleanVar() for i in pr.province_districts["Lai Châu"]]
+# các checkbutton là các nút check ko phải var
 checkbutton_lc_now,checkbutton_lc_13h=pr.even_check_buttons(name_lchau,lchau_frame_now,lchau_frame_13h,chks_lc,chks_lc_13h,2,8)
 
 #Dien_Bien
@@ -450,20 +451,32 @@ person_send1.current(0)
 person_send1.grid(row=0,column=7)
 
 # Dict để xác định các thay đổi cần được lưu
-dict1 = {'id_news':0,'now_date':'','kind_news':'','h_wea_now':'','m_wea_now':'','zmax': 0, 'velocity':'', 'direc':'',
-         'charac_pre':'','hail':0,'send_date':'','h_send':'','m_send':'','per_send':'','m_wea_now':''}
+dict1 = {'id_news':0,'now_date':'','kind_news':'','h_wea_now':'','m_wea_now':'','zmax': 0,'loca_max':'', 'velocity':'', 'direc':'',
+         'mc1':'','mc2':'','charac_pre':'','hail':0,'send_date':'','h_send':'','m_send':'','per_send':'','m_wea_now':''}
 def dict_update():
+   now_update=[]
+   to_13h_update=[]
+   def append_list_update(all_chks_agument,n):  
+      for j,all_chks in enumerate(all_chks_agument):
+         lst_now = [pr.province_districts[province_names[j]][i] for i, chk in enumerate(all_chks) if chk.get()]
+         n.append(lst_now)
+   append_list_update(all_chks_now,now_update)
+   append_list_update(all_chks_13h,to_13h_update)
    dict={'id_news':number_news_ent_var.get(),'now_date':date_now_ent_var.get(),'kind_news':kind_news_cbb.get(),
                               'h_wea_now':h_weather_now_var.get(),'m_wea_now':m_weather_now_var.get(),
-                              'zmax': zmax_spin_var.get(),'velocity': velo_cbb.get(),'direc':direc_cbb.get()
-                              ,'charac_pre':charac_pre.get(),'hail':hail_var.get(),'send_date':day_time_send_var.get(),
+                              'zmax': zmax_spin_var.get(),'loca_max':[province_names[i] for i, chk in enumerate(chks_max) if chk.get()],
+                              'velocity': velo_cbb.get(),'direc':direc_cbb.get(),
+                              'mc1':now_update,'mc2':to_13h_update,
+                              'charac_pre':charac_pre.get(),'hail':hail_var.get(),'send_date':day_time_send_var.get(),
                               'h_send':h_time_send_var.get(),'m_send':m_time_send_var.get(),'per_send':person_send_var.get()}
+   print(now_update)
+   print(to_13h_update)
    return dict
 name_file=""
 #####################
 def saving_news(use_to=0):
    global name_file
-   searh_ent_var.set("")
+   searh_ent_var.set("") # make search to blank
    lst_max = [province_names[i] for i, chk in enumerate(chks_max) if chk.get()]
    #set for Zmax at provinces
    #######
@@ -535,8 +548,6 @@ def saving_news(use_to=0):
                messagebox.showerror("Lỗi","Không lưu được tin")
          elif use_to==1:
             doc.save(file_path)
-
-
 
 ###########################
 def clear_button():
@@ -610,18 +621,19 @@ def send_mail_button(ed_send):
    #messagebox.askquestion("Gửi tin trưởng trạm","Bạn muốn làm mới bản tin?")
    subject=day_time_send_var.get()[0:2]+"."+day_time_send_var.get()[3:5]+"."+day_time_send_var.get()[6:10]+"- "+"Bản tin cảnh báo mưa dông.RDPD -"+ number_news_ent.get()
    # Set up the email lists
-   if ed_send==0:
+   if ed_send==0: #Tới các địa chỉ
       email_list = ["mr.nguyenkhacquan@gmail.com","nguyenquan.flc@gmail.com"]
       send_mail()
       saving_database()
       ask_clear=messagebox.askokcancel("Gửi tin thành công","Bạn muốn làm mới bản tin?")
       if ask_clear:
          clear_button()
-   elif ed_send==1:
+   elif ed_send==1: #tới trưởn trạm
       dict2=dict_update()
       if dict1 == dict2:
          email_list=["mr.nguyenkhacquan@gmail.com"]
-         send_mail()
+         #send_mail()
+         print("Done")
       else:
          messagebox.showerror("Lỗi","Chưa lưu bản tin")
 
