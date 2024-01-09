@@ -1,7 +1,15 @@
-dict1 = {'a': 1, 'b': ['Sơn La', 'Hòa Bình'], 'c': 3}
-dict2 = {'a': 1, 'b': ['Sơn La','Hòa Bình'], 'c': 3}
+from tkinter import *
 
-if dict1 == dict2:
-    print("Hai dict giống nhau.")
-else:
-    print("Hai dict khác nhau.")
+root = Tk()
+
+root.overrideredirect(True)
+root.geometry('400x100+200+200')
+
+title_bar = Frame(root, bg='white', relief='raised', bd=2)
+
+window = Canvas(root, bg='black')
+
+title_bar.pack(expand=1, fill=X)
+window.pack(expand=1, fill=BOTH)
+
+root.mainloop()
