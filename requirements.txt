@@ -4,3 +4,6 @@ Pillow
 PyQt5
 numpy
 opencv-python
+tkcalendar
+mysql.connector
+pyinstaller==6.1.0

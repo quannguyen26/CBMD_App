@@ -32,15 +32,15 @@ def login(event=None):
     elif user_entry.get()=='nguyenkhacquan' and password_entry.get()=='12345':
         saving_login("Nguyễn Khắc Quân")
         window_login.destroy()
-        import cbmd
+        import main
     elif user_entry.get()=='tranvanquy' and password_entry.get()=='123456':
         saving_login("Trần Văn Quý")
         window_login.destroy()
-        import cbmd
+        import main
     elif user_entry.get()=='vangatung' and password_entry.get()=='1234567':
         saving_login("Vàng A Tùng")
         window_login.destroy()
-        import cbmd    
+        import main    
     else:
         messagebox.showerror("Lỗi",'Tài khoản hoặc mật khẩu không đúng')
 

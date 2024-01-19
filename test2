@@ -1,15 +1,31 @@
-from tkinter import *
+import tkinter as tk
 
-root = Tk()
+def update_label(event):
+    try:
+        # Lấy giá trị từ Entry và chuyển đổi thành số
+        value = float(entry.get())
+        
+        # Kiểm tra nếu giá trị lớn hơn 10
+        if value > 10:
+            label.config(text=f"Giá trị lớn hơn 10: {value}")
+        else:
+            label.config(text="Giá trị không lớn hơn 10")
+    except ValueError:
+        # Xử lý trường hợp nếu giá trị không phải là số
+        label.config(text="Nhập số hợp lệ")
 
-root.overrideredirect(True)
-root.geometry('400x100+200+200')
+root = tk.Tk()
+root.title("Thay đổi Label khi nhập dữ liệu")
 
-title_bar = Frame(root, bg='white', relief='raised', bd=2)
+# Tạo và cấu hình Entry
+entry = tk.Entry(root)
+entry.pack(padx=20, pady=10)
 
-window = Canvas(root, bg='black')
+# Tạo và cấu hình Label
+label = tk.Label(root, text="Nhập dữ liệu để kiểm tra")
+label.pack(pady=10)
 
-title_bar.pack(expand=1, fill=X)
-window.pack(expand=1, fill=BOTH)
+# Gắn sự kiện để theo dõi sự thay đổi trong Entry
+entry.bind("<KeyRelease>", update_label)
 
 root.mainloop()
