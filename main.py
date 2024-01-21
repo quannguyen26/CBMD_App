@@ -80,12 +80,12 @@ def searh():
          person_send_var.set(myresult[12])
          binary_data = myresult[13]
          img = Image.open(io.BytesIO(binary_data))
-         img.save("radar_images/"+str(myresult[0])+".png")
+         img.save("radar_images\\"+str(myresult[0])+".png")
          img=img.resize((520,460))
          img=ImageTk.PhotoImage(img)
          image_label.configure(image=img)
          image_label.image=img
-         link_pic.insert(0,"radar_images/"+str(myresult[0])+".png")
+         link_pic.insert(0,"radar_images\\"+str(myresult[0])+".png")
          check_in_sql(myresult[14],myresult[15],pr.province_districts["Lai Châu"],checkbutton_lc_now,checkbutton_lc_13h)
          check_in_sql(myresult[16],myresult[17],pr.province_districts["Điện Biên"],checkbutton_db_now,checkbutton_db_13h)
          check_in_sql(myresult[18],myresult[19],pr.province_districts["Sơn La"],checkbutton_sl_now,checkbutton_sl_13h)
@@ -93,6 +93,17 @@ def searh():
          check_in_sql(myresult[22],myresult[23],pr.province_districts["Lào Cai"],checkbutton_lcai_now,checkbutton_lcai_13h)
          check_in_sql(myresult[24],myresult[25],pr.province_districts["Yên Bái"],checkbutton_yb_now,checkbutton_yb_13h)
          cbmd_db.close()
+         obser=person_idnews()
+         if obser!=person_send_var.get():
+            update_news["state"] ="disabled"
+            send_ttram["state"]="disabled"
+            send_all["state"]="disabled"
+            save_news["state"]="disabled"
+         else:
+            update_news["state"] ="normal"
+            send_ttram["state"]="normal"
+            send_all["state"]="normal"
+            save_news["state"]="normal"
       except:
          messagebox.showerror('Lỗi',"Không có bản tin số " + str(searh_ent_var.get()))
          cbmd_db.close()
@@ -123,7 +134,7 @@ def saving_database():
          date_now_ent_var.get(),kind_news_cbb.get(),direc_cbb.get(),velo_cbb.get(),
          zmax_spin_var.get(),', '.join([province_names[i] for i, chk in enumerate(chks_max) if chk.get()]),
          charac_pre.get(),hail_var.get(),h_time_send_var.get()+":"+m_time_send_var.get(),
-         day_time_send_var.get(),person_send_var.get(),byte_string("radar_images/"+str(number_news_ent_var.get())+".png"),
+         day_time_send_var.get(),person_send_var.get(),byte_string("radar_images\\"+str(number_news_ent_var.get())+".png"),
          save_provinces(chks_lc,pr.province_districts["Lai Châu"]),save_provinces(chks_lc_13h,pr.province_districts["Lai Châu"]),
          save_provinces(chks_db,pr.province_districts["Điện Biên"]),save_provinces(chks_db_13h,pr.province_districts["Điện Biên"]),
          save_provinces(chks_sl,pr.province_districts["Sơn La"]),save_provinces(chks_sl_13h,pr.province_districts["Sơn La"]),
@@ -136,8 +147,25 @@ def saving_database():
    cbmd_db.commit()
    cbmd_db.close() 
 
+def get_linkfile_database():
+   #Hàm để lấy link của file_name đã lưu sử dụng trong việc xóa file cũ thay fiel mới
+   cbmd_db=connection_sql()
+   mycursor = cbmd_db.cursor()
+   query="SELECT name_file FROM cbmd_database WHERE id_news= %s"
+   mycursor.execute(query,(number_news_ent_var.get(),))
+   link_news = mycursor.fetchone()[0]
+   cbmd_db.close()
+   return link_news
 #update in database
-def update_database():
+def update_database(for_=0):
+   if for_==1:
+      try:
+         old_file_path=get_linkfile_database()
+         os.remove(old_file_path)
+         save_file()
+      except:
+         save_file()
+         
    cbmd_db=mysql.connector.connect(
       host="localhost",
       user="root",
@@ -153,7 +181,7 @@ def update_database():
          date_now_ent_var.get(),kind_news_cbb.get(),direc_cbb.get(),velo_cbb.get(),
          zmax_spin_var.get(),', '.join([province_names[i] for i, chk in enumerate(chks_max) if chk.get()]),
          charac_pre.get(),hail_var.get(),h_time_send_var.get()+":"+m_time_send_var.get(),
-         day_time_send_var.get(),person_send_var.get(),byte_string("radar_images/"+str(number_news_ent_var.get())+".png"),
+         day_time_send_var.get(),person_send_var.get(),byte_string("radar_images\\"+str(number_news_ent_var.get())+".png"),
          save_provinces(chks_lc,pr.province_districts["Lai Châu"]),save_provinces(chks_lc_13h,pr.province_districts["Lai Châu"]),
          save_provinces(chks_db,pr.province_districts["Điện Biên"]),save_provinces(chks_db_13h,pr.province_districts["Điện Biên"]),
          save_provinces(chks_sl,pr.province_districts["Sơn La"]),save_provinces(chks_sl_13h,pr.province_districts["Sơn La"]),
@@ -176,7 +204,7 @@ name_hbinh=list(pr.province_districts.keys())[3]
 name_lcai=list(pr.province_districts.keys())[4]
 name_ybai=list(pr.province_districts.keys())[5]
 #######
-#now_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+#now_time = datetime.now().strftime("%d\\%m\\%Y %H:%M:%S")
 window=tk.Tk()
 window.title("Phần mềm ra bản tin cảnh báo mưa dông")
 window.config(bg="skyblue",padx=0,pady=0)
@@ -187,7 +215,7 @@ tk.Label(window, text='BẢN TIN CẢNH BÁO MƯA DÔNG TRÊN KHU VỰC MIỀN N
 searh_ent_var=tk.IntVar(value="")
 searh_ent=tk.Entry(window,textvariable=searh_ent_var,width=15,font=("Times New Roman",16))
 searh_ent.place(x=870,y=38)
-searh_button=tk.Button(window,text="Tìm kiếm",font=("Times New Roman",11),width=10,command=searh)
+searh_button=tk.Button(window,text="Tìm kiếm",font=("Times New Roman",11),width=10,command=searh,cursor='hand2')
 searh_button.place(x=1050,y=37)
 frame=tk.Frame(window,bg="skyblue")
 frame.pack(padx=20,pady=10)
@@ -208,7 +236,6 @@ def lastest_idnews():
    id_news=mycursor.fetchone()[0]
    cbmd_db.close()
    return id_news
-
 number_news_ent_var=tk.IntVar()
 number_news_ent=tk.Entry(information_frame1,textvariable=number_news_ent_var,width=10)
 number_news_ent.grid(row=0,column=1)
@@ -222,6 +249,12 @@ def update_label_img(event):
             link_pic.insert(0,"capture.png")
             observer=person_idnews()
             person_send1.set(observer)
+            if observer==person_send_var.get():
+               update_news["state"]="normal"
+               send_ttram["state"]="normal"
+               send_all["state"]="normal"
+               save_news["state"]="normal"
+               searh_ent_var.set("")
         else:
             pass
     except:
@@ -246,9 +279,9 @@ def change_to_now():
 def change_to_1_3h_next():
    weather_1_3h.grid(row=1,column=0,sticky="W",pady=(5,0))
    weather_now_frame1.grid_forget()
-now_button=tk.Button(information_frame1,text="Hiện tại",width=20,command=change_to_now)
+now_button=tk.Button(information_frame1,text="Hiện tại",width=20,command=change_to_now,cursor='hand2')
 now_button.grid(row=0, column=6,padx=(45,0))
-h_1_3_next=tk.Button(information_frame1,text="Từ 1-3 giờ tới ",width=20,command=change_to_1_3h_next)
+h_1_3_next=tk.Button(information_frame1,text="Từ 1-3 giờ tới ",width=20,command=change_to_1_3h_next,cursor='hand2')
 h_1_3_next.grid(row=0, column=7,padx=(30,82))
 
 #-------------------------------------------------------------------------------------------------
@@ -393,13 +426,13 @@ def sniping_image():
    try:
       os.rename('capture.png', new_name)
       try:
-         os.remove("radar_images/"+new_name)
-         shutil.move(new_name,"radar_images/")
+         os.remove("radar_images\\"+new_name)
+         shutil.move(new_name,"radar_images\\")
       except OSError:
-         shutil.move(new_name,"radar_images/")
+         shutil.move(new_name,"radar_images\\")
       
-      link_pic.insert(0,"radar_images/"+new_name)
-      img=Image.open("radar_images/"+new_name,"r")
+      link_pic.insert(0,"radar_images\\"+new_name)
+      img=Image.open("radar_images\\"+new_name,"r")
       img=img.resize((520,460))
       img=ImageTk.PhotoImage(img)
       image_label.configure(image=img)
@@ -416,7 +449,7 @@ image_none=tk.Label(image_frame,text="Ảnh")
 image_none.grid(row=0,column=0, padx=250, pady=(255,188))
 image_label=tk.Label(image_frame)
 image_label.grid(row=0,column=0,sticky="n") 
-sniping_but=tk.Button(image_frame,text="Cắt ảnh",bg='lightblue',command=sniping_image)
+sniping_but=tk.Button(image_frame,text="Cắt ảnh",bg='lightblue',command=sniping_image,cursor='hand2')
 sniping_but.grid(row=1,column=0, pady=5,ipadx=10,ipady=5)
 ##----------------------------------------------------------------------------------------------####
 #Save frame
@@ -589,8 +622,20 @@ def clear_button():
    link_pic.insert(0,"capture.png")
    dict1 = {'id_news':0,'now_date':'','kind_news':'','h_wea_now':'','m_wea_now':'','zmax': 0,'loca_max':'', 'velocity':'', 'direc':'',
          'mc1':'','mc2':'','charac_pre':'','hail':0,'send_date':'','h_send':'','m_send':'','per_send':'','m_wea_now':''}
-     
-
+   update_news["state"]="normal"
+   send_ttram["state"]="normal"
+   send_all["state"]="normal"
+   save_news["state"]="normal"
+def save_file():
+      global path_file_news
+      try:
+         path_folder="D:\\CBMD-"+name_file[10:14]+"\\"+name_file[14:16]
+         if not os.path.exists(path_folder):
+            os.makedirs(path_folder)
+         shutil.move("news\\"+name_file, path_folder)
+         path_file_news=path_folder+"\\"+name_file
+      except:
+         messagebox.showerror("Lỗi","Chưa lưu bản tin")
 def send_mail_button(ed_send):
    def send_mail(email_list):
       pswd = "kyvofwfivxxltzuu" 
@@ -627,17 +672,10 @@ def send_mail_button(ed_send):
       except:
          messagebox.showerror("Lỗi","Chưa lưu bản tin")
 
-   #Read mail edress from dong_tpl/mail.txt   
-   with open('dong_tpl/mail.txt', 'r') as file:
+   #Read mail edress from dong_tpl\\mail.txt   
+   with open('dong_tpl\\mail.txt', 'r') as file:
       content_list = [line.strip() for line in file.readlines() if not line.startswith('#')]
    
-   def save_file():
-      global path_file_news
-      path_folder="D:/CBMD-"+name_file[10:14]+"/"+name_file[14:16]
-      if not os.path.exists(path_folder):
-         os.makedirs(path_folder)
-      shutil.copy2("news/"+name_file, path_folder)
-      path_file_news=path_folder+"/"+name_file
    #Chọn tới các địa chỉ: 0=các địa chỉ; 1= trưởng trạm
    if ed_send==0: #Tới các địa chỉ
       dict2=dict_update()
@@ -645,17 +683,22 @@ def send_mail_button(ed_send):
          lastest_id=lastest_idnews()
          if number_news_ent_var.get() > lastest_id:
             #send_mail(", ".join(content_list[:]))
+            print("Gửi tới các địa chỉ")
             save_file()
             saving_database()
-            print("Gửi tới các địa chỉ")
             clear_button()
          else:
             ask_update=messagebox.askokcancel("Tin này đã được gửi","Bạn có muốn gửi lại?")
             if ask_update:
                #send_mail(", ".join(content_list[:]))
-               update_database()   
-               print("Gửi lại tới các địa chỉ")
+               old_file_path=get_linkfile_database()
+               try:
+                  os.remove(old_file_path)
+               except:
+                  pass
                save_file()
+               update_database(for_=0)   
+               print("Gửi lại tới các địa chỉ")
                clear_button()          
       else:
          messagebox.showerror("Lỗi","Chưa lưu bản tin")
@@ -674,27 +717,27 @@ def logout():
 frame_save_buttons=tk.Frame(save_frame)
 frame_save_buttons.grid(row=1,column=0)
 
-save_news=tk.Button(frame_save_buttons,text="Lưu tin",width=12, height=2,bg='lightblue',command=saving_news)
+save_news=tk.Button(frame_save_buttons,text="Lưu tin",width=12, height=2,bg='lightblue',command=saving_news,cursor='hand2')
 save_news.grid(row=0,column=0,padx=15)
 
 send_ttram=tk.Button(frame_save_buttons,text="Gửi trưởng trạm", height=2,
-                     command=lambda:send_mail_button(1),bg='lightblue')
+                     command=lambda:send_mail_button(1),bg='lightblue',cursor='hand2')
 send_ttram.grid(row=0,column=1,padx=15)
 
 send_all=tk.Button(frame_save_buttons,text="Gửi tin", width=12,height=2,bg='lightblue', 
-                   command=lambda:send_mail_button(0))
+                   command=lambda:send_mail_button(0),cursor='hand2')
 send_all.grid(row=0,column=2,padx=15)
 
-reset_news=tk.Button(frame_save_buttons,text="Làm mới",width=12, height=2,command=clear_button,bg='lightblue')
+reset_news=tk.Button(frame_save_buttons,text="Làm mới",width=12, height=2,command=clear_button,bg='lightblue',cursor='hand2')
 reset_news.grid(row=1,column=0,padx=15,pady=5)
 
-delete_news=tk.Button(frame_save_buttons,text="Cập nhật", height=2,width=12,
-                     bg='lightblue',command=update_database)
-delete_news.grid(row=1,column=1,padx=15,pady=5)
+update_news=tk.Button(frame_save_buttons,text="Cập nhật", height=2,width=12,
+                     bg='lightblue',command=lambda:update_database(1),cursor='hand2')
+update_news.grid(row=1,column=1,padx=15,pady=5)
 
-update_news=tk.Button(frame_save_buttons,text="Đăng xuất", height=2,width=12,
-                     bg='lightblue',command=logout)
-update_news.grid(row=1,column=2,padx=15,pady=5)
+logout_news=tk.Button(frame_save_buttons,text="Đăng xuất", height=2,width=12,
+                     bg='lightblue',command=logout,cursor='hand2')
+logout_news.grid(row=1,column=2,padx=15,pady=5)
 
 #Khóa không cho nhập vào spinbox
 def on_click(event):
@@ -706,6 +749,7 @@ spinboxes = [h_weather_now, m_weather_now, h_time_send, m_time_send,zmax_spin]
 for spinbox in spinboxes:
     spinbox.bind("<Key>", lambda e: "break")
     spinbox.bind("<FocusIn>", on_click)
+# Cập nhật trang thái button dựa vào tên quan trắc viên
 
 clear_button()
 window.mainloop()
