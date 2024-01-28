@@ -1,16 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
-added_files = [
-("radar_images/", "radar_images/"),
-("app_images/", "app_images/"),
-("dong_tpl/*", "dong_tpl"),
-("news/", "news/")
-]
+
 
 a = Analysis(
-    ['cbmd.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
-    datas=added_files,
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -26,7 +21,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='cbmd',
+    name='main',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

@@ -3,11 +3,22 @@ from PIL import ImageTk
 from tkinter import messagebox
 import mysql.connector
 from datetime import datetime
+import os
+import sys
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path) 
 window_login=tk.Tk()
 window_login.title("Đăng nhập phần mềm")
 window_login.geometry("1200x780+85+10")
 window_login.resizable(False,False)
-background_image=ImageTk.PhotoImage(file='app_images/backgroud_login.png')
+background_image=ImageTk.PhotoImage(file=resource_path('app_images\\backgroud_login.png'))
 bg_label=tk.Label(image=background_image)
 bg_label.grid(row=0,column=0)
 login_frame=tk.Frame(window_login)
