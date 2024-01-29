@@ -547,9 +547,10 @@ name_ybai=list(pr.province_districts.keys())[5]
 window=tk.Tk()
 window.title("Phần mềm ra bản tin cảnh báo mưa dông")
 window.config(bg="skyblue",padx=0,pady=0)
-window.geometry("1200x780+150+0")
+window.geometry("1200x780+170+10")
 window.resizable(False,False)
-
+icon_image=ImageTk.PhotoImage(file=resource_path('app_images\\radar.ico'))
+window.iconphoto(False,icon_image)
 #### VARS #####
 searh_ent_var=tk.IntVar(value="")
 number_news_ent_var=tk.IntVar()
