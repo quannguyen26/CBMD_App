@@ -1,10 +1,10 @@
 import tkinter as tk
 from PIL import ImageTk
 from tkinter import messagebox
-import mysql.connector
 from datetime import datetime
 import os
 import sys
+import sqlite3
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
@@ -26,13 +26,9 @@ bg_label.grid(row=0,column=0)
 login_frame=tk.Frame(window_login)
 login_frame.place(x=500,y=300)
 def saving_login(values):
-   cbmd_db=mysql.connector.connect(
-      host="localhost",
-      user="root",
-      password="quanlam26",
-      database="custorm")
+   cbmd_db=sqlite3.connect("cbmd_database_2024.db")
    mycursor = cbmd_db.cursor()
-   query='''INSERT INTO cbmd_login (name_login,date_login) VALUES (%s,%s)'''
+   query='''INSERT INTO login_2024 (name_login,date_login) VALUES (?,?)'''
    date=datetime.now()
    val=(values,date)
    mycursor.execute(query,val)

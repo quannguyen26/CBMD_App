@@ -16,18 +16,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders,utils
-import mysql.connector
 import subprocess
+import sqlite3
 
 #----------------------------------------------------------------------------------
-def connection_sql():
-   cbmd_db=mysql.connector.connect(
-      host="localhost",
-      user="root",
-      password="quanlam26",
-      database="custorm"
-   )
-   return cbmd_db
+
 ###### Search in database   
 ###### Def for searching news from Database ###
 def check_in_sql(myresult_now,myresult_13h,districts,checkbutton_now,checkbutton_13h): 
@@ -43,18 +36,17 @@ def check_in_sql(myresult_now,myresult_13h,districts,checkbutton_now,checkbutton
          for name_var,chk1,chk2 in zip(districts,checkbutton_13h[:-1],checkbutton_now[:-1]): 
             if name ==name_var:chk1.select(),chk2.configure(state="disabled") 
 def searh():
-   clear_button(for_=1)
-   cbmd_db=connection_sql()
+   cbmd_db = sqlite3.connect('cbmd_database_2024.db')
    mycursor = cbmd_db.cursor()
-   mycursor.execute("SELECT MAX(id_news) FROM cbmd_database")
+   mycursor.execute("SELECT MAX(id_news) FROM cbmd_2024")
    id_news=mycursor.fetchone()[0] + 1
    if searh_ent_var.get()>= id_news:
       messagebox.showerror('Lỗi',"Không có bản tin số " + str(searh_ent_var.get()))
       cbmd_db.close()
    else:
-      #clear_button()
       try:
-         query="SELECT * FROM cbmd_database WHERE id_news= %s"
+         clear_button(for_=1)
+         query="SELECT * FROM cbmd_2024 WHERE id_news= ?"
          mycursor.execute(query,(searh_ent_var.get(),))
          myresult = mycursor.fetchone()
          number_news_ent_var.set(myresult[0])
@@ -122,37 +114,38 @@ def save_provinces(all_chk,districts):
             lc="Tất cả"
    return lc
 def saving_database():
-   cbmd_db=connection_sql()
-   mycursor = cbmd_db.cursor()
-   query='''INSERT INTO cbmd_database (id_news,time_now,date_now,kind_news,Derection,Velocity,Zmax,location_zmax,
-                                       weather13next,hail,time_send,day_send,observer,image,laichau_now,laichau_13h,
-                                       dienbien_now,dienbien_13h,sonla_now,sonla_13h,hoabinh_now,hoabinh_13h,
-                                       laocai_now,laocai_13h,yenbai_now,yenbai_13h,name_file) 
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-         '''
+   cbmd_db=sqlite3.connect("cbmd_database_2024.db")
+   mycursor=cbmd_db.cursor()
+   query='''INSERT INTO cbmd_2024 (id_news,time_now,date_now,kind_news,Derection,Velocity,Zmax,location_zmax,
+                                        weather13next,hail,time_send,day_send,observer,image,laichau_now,laichau_13h,
+                                        dienbien_now,dienbien_13h,sonla_now,sonla_13h,hoabinh_now,hoabinh_13h,
+                                        laocai_now,laocai_13h,yenbai_now,yenbai_13h,name_file) 
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+          '''
    val=(number_news_ent_var.get(),h_weather_now_var.get()+":"+m_weather_now_var.get(),
-         date_now_ent_var.get(),kind_news_cbb.get(),direc_cbb.get(),velo_cbb.get(),
-         zmax_spin_var.get(),', '.join([province_names[i] for i, chk in enumerate(chks_max) if chk.get()]),
-         charac_pre.get(),hail_var.get(),h_time_send_var.get()+":"+m_time_send_var.get(),
-         day_time_send_var.get(),person_send_var.get(),byte_string(resource_path("radar_images\\"+str(number_news_ent_var.get())+".png")),
-         save_provinces(chks_lc,pr.province_districts["Lai Châu"]),save_provinces(chks_lc_13h,pr.province_districts["Lai Châu"]),
-         save_provinces(chks_db,pr.province_districts["Điện Biên"]),save_provinces(chks_db_13h,pr.province_districts["Điện Biên"]),
-         save_provinces(chks_sl,pr.province_districts["Sơn La"]),save_provinces(chks_sl_13h,pr.province_districts["Sơn La"]),
-         save_provinces(chks_hb,pr.province_districts["Hòa Bình"]),save_provinces(chks_hb_13h,pr.province_districts["Hòa Bình"]),
-         save_provinces(chks_lcai,pr.province_districts["Lào Cai"]),save_provinces(chks_lcai_13h,pr.province_districts["Lào Cai"]),
-         save_provinces(chks_yb,pr.province_districts["Yên Bái"]),save_provinces(chks_yb_13h,pr.province_districts["Yên Bái"]),
-         path_file_news
-        )
+          date_now_ent_var.get(),kind_news_cbb.get(),direc_cbb.get(),velo_cbb.get(),
+          zmax_spin_var.get(),', '.join([province_names[i] for i, chk in enumerate(chks_max) if chk.get()]),
+          charac_pre.get(),hail_var.get(),h_time_send_var.get()+":"+m_time_send_var.get(),
+          day_time_send_var.get(),person_send_var.get(),byte_string(resource_path("radar_images\\"+str(number_news_ent_var.get())+".png")),
+          save_provinces(chks_lc,pr.province_districts["Lai Châu"]),save_provinces(chks_lc_13h,pr.province_districts["Lai Châu"]),
+          save_provinces(chks_db,pr.province_districts["Điện Biên"]),save_provinces(chks_db_13h,pr.province_districts["Điện Biên"]),
+          save_provinces(chks_sl,pr.province_districts["Sơn La"]),save_provinces(chks_sl_13h,pr.province_districts["Sơn La"]),
+          save_provinces(chks_hb,pr.province_districts["Hòa Bình"]),save_provinces(chks_hb_13h,pr.province_districts["Hòa Bình"]),
+          save_provinces(chks_lcai,pr.province_districts["Lào Cai"]),save_provinces(chks_lcai_13h,pr.province_districts["Lào Cai"]),
+          save_provinces(chks_yb,pr.province_districts["Yên Bái"]),save_provinces(chks_yb_13h,pr.province_districts["Yên Bái"]),
+          path_file_news
+         )
    mycursor.execute(query,val)
    cbmd_db.commit()
-   cbmd_db.close() 
+   cbmd_db.close()
+   
 
 ####Def for get path file news from database##
 #Hàm để lấy link của file_name đã lưu sử dụng trong việc xóa file cũ thay fiel mới
 def get_linkfile_database():
-   cbmd_db=connection_sql()
+   cbmd_db=sqlite3.connect("cbmd_database_2024.db")
    mycursor = cbmd_db.cursor()
-   query="SELECT name_file FROM cbmd_database WHERE id_news= %s"
+   query="SELECT name_file FROM cbmd_2024 WHERE id_news= ?"
    mycursor.execute(query,(number_news_ent_var.get(),))
    link_news = mycursor.fetchone()[0]
    cbmd_db.close()
@@ -160,24 +153,18 @@ def get_linkfile_database():
 
 #### Def for update in database #####
 def update_database(for_=0):
-   if for_==1:
-      try:
-         old_file_path=get_linkfile_database()
-         os.remove(old_file_path)
-         save_file()
-      except:
-         save_file()
-         
-   cbmd_db=mysql.connector.connect(
-      host="localhost",
-      user="root",
-      password="quanlam26",
-      database="custorm")
+   try:
+      old_file_path=get_linkfile_database()
+      os.remove(old_file_path)
+      save_file()
+   except:
+      save_file()
+   cbmd_db=sqlite3.connect("cbmd_database_2024.db")
    mycursor = cbmd_db.cursor()
-   query='''UPDATE cbmd_database SET time_now = %s,date_now = %s,kind_news = %s,Derection = %s,Velocity = %s,Zmax = %s,location_zmax = %s,
-               weather13next = %s,hail = %s,time_send = %s,day_send = %s,observer = %s,image = %s,laichau_now = %s,laichau_13h = %s,
-               dienbien_now = %s,dienbien_13h = %s,sonla_now = %s,sonla_13h = %s,hoabinh_now = %s,hoabinh_13h = %s,
-               laocai_now = %s,laocai_13h = %s,yenbai_now = %s,yenbai_13h = %s, name_file= %s WHERE id_news= %s 
+   query='''UPDATE cbmd_2024 SET time_now = ?,date_now = ?,kind_news = ?,Derection = ?,Velocity = ?,Zmax = ?,location_zmax = ?,
+               weather13next = ?,hail = ?,time_send = ?,day_send = ?,observer = ?,image = ?,laichau_now = ?,laichau_13h = ?,
+               dienbien_now = ?,dienbien_13h = ?,sonla_now = ?,sonla_13h = ?,hoabinh_now = ?,hoabinh_13h = ?,
+               laocai_now = ?,laocai_13h = ?,yenbai_now = ?,yenbai_13h = ?, name_file= ? WHERE id_news= ? 
            '''
    val=(h_weather_now_var.get()+":"+m_weather_now_var.get(),
          date_now_ent_var.get(),kind_news_cbb.get(),direc_cbb.get(),velo_cbb.get(),
@@ -195,19 +182,29 @@ def update_database(for_=0):
    mycursor.execute(query,val)
    cbmd_db.commit()
    cbmd_db.close()
-   #clear_button()
+   if for_==1:
+      clear_button()
+      messagebox.showinfo("Cập nhật","Cập nhật thành công")
+####Def for update checkbutton location of ZMax for 2 location
+def update_max_checkbuttons():
+    checked_count = sum(var.get() for var in chks_max)
+    if checked_count >= 2:
+        for var, checkbox in zip(chks_max, checkboxes_max):
+            if var.get() == 0:
+                checkbox.config(state=tk.DISABLED)
+    else:
+        for checkbox in checkboxes_max:
+            checkbox.config(state=tk.NORMAL)  
+
 #### Def for get lastest id_news
 def lastest_idnews():
-   cbmd_db=mysql.connector.connect(
-         host="localhost",
-         user="root",
-         password="quanlam26",
-         database="custorm")
-   mycursor = cbmd_db.cursor()
-   mycursor.execute("SELECT MAX(id_news) FROM cbmd_database")
-   id_news=mycursor.fetchone()[0]
-   cbmd_db.close()
-   return id_news
+    cbmd_db=sqlite3.connect("cbmd_database_2024.db")
+    mycursor = cbmd_db.cursor()
+    mycursor.execute("SELECT MAX(id_news) FROM cbmd_2024")
+    id_news=mycursor.fetchone()[0]
+    cbmd_db.close()
+    return id_news
+  
 ##Def for change lastesr news from fill new_entry_var ######
 def update_label_img(event):
     try:
@@ -258,7 +255,7 @@ def resource_path(relative_path):
 def sniping_image():
    ##### Def to snipping images #########
    window.withdraw()
-   sub=subprocess.Popen(['python' , 'sniping.py'],stdout=subprocess.PIPE)
+   sub=subprocess.Popen(['python' , resource_path('sniping.py')],stdout=subprocess.PIPE)
    sub.wait()
    new_name=str(number_news_ent_var.get())+".png"
    try:
@@ -285,13 +282,9 @@ def my_upd(*args):
 
 def person_idnews():
    ######## Def to update for require must save ######
-   cbmd_db=mysql.connector.connect(
-         host="localhost",
-         user="root",
-         password="quanlam26",
-         database="custorm")
+   cbmd_db=sqlite3.connect("cbmd_database_2024.db")
    mycursor = cbmd_db.cursor()
-   mycursor.execute("SELECT name_login FROM cbmd_login ORDER BY date_login DESC LIMIT 1")
+   mycursor.execute("SELECT name_login FROM login_2024 ORDER BY date_login DESC LIMIT 1")
    observer=mycursor.fetchone()[0]
    #number_news_ent_var.set(id_news)
    cbmd_db.close()
@@ -360,33 +353,43 @@ def saving_news():
       except UnboundLocalError:
          messagebox.showerror("Lỗi","Thiếu trường dữ liệu")
       else:
-         if hail_var.get() ==1: hail=", mưa đá" 
-         else: hail=""
-         doc=DocxTemplate(resource_path("dong_tpl\\dongtpl.docx"))
-         context={
-               "num_tin":number_news_ent.get(),"day":day_time_send_var.get()[0:2],"mon":day_time_send_var.get()[3:5],
-               "year":day_time_send_var.get()[6:10],"kind_news":kind_news_cbb.get(),"h":h_weather_now.get(),"m":m_weather_now.get(),
-               "mc1":mc1,"mc2":mc2,"mc3":mc3,"mc4":mc4,"mc5":mc5,
-               "dBZ":zmax_spin.get(),"direc":direc_cbb.get(),"velo":velo_cbb.get(),"province_max":', '.join(lst_max),
-               "pic":InlineImage(doc,resource_path(link_pic[0]),width=Mm(120),height=Mm(110)),"dayp":date_now_ent_var.get()[0:2],"monp":date_now_ent_var.get()[3:5],
-               "yearp":date_now_ent_var.get()[6:10],"charac_pre":charac_pre.get(),"hail":hail,"h_send":h_time_send.get(),
-               "m_send":m_time_send.get(),"person_send":person_send1.get()
-         } 
-         doc.render(context)
-            #name file news
-         if kind_news_cbb.get() =="CẢNH BÁO MƯA DÔNG":
-            title_file="DONG"
+         error_flag = False
+         for item in lst_max:
+            if item not in list(set(all_1_1+all_2_now[0]+all_2_now[1])):
+               error_flag = True
+               break
+         if not error_flag:
+            if hail_var.get() ==1: 
+               hail=", mưa đá" 
+            else: 
+               hail=""
+            doc=DocxTemplate(resource_path("dong_tpl\\dongtpl.docx"))
+            context={
+                  "num_tin":number_news_ent.get(),"day":day_time_send_var.get()[0:2],"mon":day_time_send_var.get()[3:5],
+                  "year":day_time_send_var.get()[6:10],"kind_news":kind_news_cbb.get(),"h":h_weather_now.get(),"m":m_weather_now.get(),
+                  "mc1":mc1,"mc2":mc2,"mc3":mc3,"mc4":mc4,"mc5":mc5,
+                  "dBZ":zmax_spin.get(),"direc":direc_cbb.get(),"velo":velo_cbb.get(),"province_max":', '.join(lst_max),
+                  "pic":InlineImage(doc,resource_path(link_pic[0]),width=Mm(110),height=Mm(95)),"dayp":date_now_ent_var.get()[0:2],"monp":date_now_ent_var.get()[3:5],
+                  "yearp":date_now_ent_var.get()[6:10],"charac_pre":charac_pre.get(),"hail":hail,"h_send":h_time_send.get(),
+                  "m_send":m_time_send.get(),"person_send":person_send1.get()
+            } 
+            doc.render(context)
+               #name file news
+            if kind_news_cbb.get() =="CẢNH BÁO MƯA DÔNG":
+               title_file="DONG"
+            else:
+               title_file="MLDR"
+            name_file="PDIN_"+title_file+"_"+day_time_send_var.get()[6:10]+day_time_send_var.get()[3:5]+day_time_send_var.get()[0:2]+"_"+h_time_send.get()+"h"+m_time_send.get()+".docx"
+            file_path="news\\"+name_file
+            try:
+               update = dict_update()
+               dict1.update(update)
+               doc.save(resource_path(file_path))
+               messagebox.showinfo("Lưu tin", "Đã lưu bản tin: "+name_file)
+            except:
+               messagebox.showerror("Lỗi","Không lưu được tin")
          else:
-            title_file="MLDR"
-         name_file="PDIN_"+title_file+"_"+day_time_send_var.get()[6:10]+day_time_send_var.get()[3:5]+day_time_send_var.get()[0:2]+"_"+h_time_send.get()+"h"+m_time_send.get()+".docx"
-         file_path="news\\"+name_file
-         try:
-            update = dict_update()
-            dict1.update(update)
-            doc.save(resource_path(file_path))
-            messagebox.showinfo("Lưu tin", "Đã lưu bản tin: "+name_file)
-         except:
-            messagebox.showerror("Lỗi","Không lưu được tin")
+            messagebox.showerror("Lỗi","L vị trí Zmax")
 
 ########## Def for clear #################
 def clear_button(for_=0):
@@ -510,14 +513,7 @@ def send_mail_button(ed_send):
          else:
             ask_update=messagebox.askokcancel("Tin này đã được gửi","Bạn có muốn gửi lại?")
             if ask_update:
-               #send_mail(", ".join(content_list[:]))
-               old_file_path=get_linkfile_database()
-               try:
-                  os.remove(old_file_path)
-               except:
-                  pass
-               save_file()
-               update_database(for_=0)   
+               update_database()   
                print("Gửi lại tới các địa chỉ")
                clear_button()          
       else:
@@ -525,11 +521,12 @@ def send_mail_button(ed_send):
    elif ed_send==1: #tới trưởng trạm
       dict2=dict_update()
       if dict1 == dict2:
-         send_mail(content_list[0])
+         #send_mail(content_list[0])
          print("Gửi tới trưởng trạm")
       else:
          messagebox.showerror("Lỗi","Chưa lưu bản tin")
 #Def to logout, back to login
+import time
 def logout():
    window.destroy()
    subprocess.Popen(['python' , 'login.py'],stdout=subprocess.PIPE)
@@ -551,6 +548,9 @@ window.geometry("1200x780+170+10")
 window.resizable(False,False)
 icon_image=ImageTk.PhotoImage(file=resource_path('app_images\\radar.ico'))
 window.iconphoto(False,icon_image)
+def disable_event():
+   pass
+#window.protocol("WM_DELETE_WINDOW", disable_event)
 #### VARS #####
 searh_ent_var=tk.IntVar(value="")
 number_news_ent_var=tk.IntVar()
@@ -562,6 +562,9 @@ h_time_send_var=tk.StringVar()
 m_time_send_var=tk.StringVar()
 zmax_spin_var=tk.IntVar()
 chks_max = [tk.BooleanVar() for i in province_names] #var for zmax
+for var in chks_max:
+    var.trace('w', lambda *args: update_max_checkbuttons())
+
 hail_var=tk.IntVar()
 person_send_var=tk.StringVar()
 ##All var for provinces
@@ -622,15 +625,15 @@ info_wea_now=tk.Frame(weather_now_frame1)
 info_wea_now.grid(row=0,column=0,pady=(10,0),padx=10)
 tk.Label(info_wea_now,text="Thời gian:").grid(row=0,column=0)
 
-h_weather_now=tk.Spinbox(info_wea_now,from_=0,to=23,textvariable=h_weather_now_var, width=3,format="%02.0f")
+h_weather_now=tk.Spinbox(info_wea_now,from_=0,to=23,textvariable=h_weather_now_var, width=3,format="%02.0f",wrap=True)
 h_weather_now.grid(row=0,column=1)
 tk.Label(info_wea_now,text=":").grid(row=0,column=2)
 
-m_weather_now=tk.Spinbox(info_wea_now,from_=0,to=50, width=3,textvariable=m_weather_now_var, increment=10,format="%02.0f")
+m_weather_now=tk.Spinbox(info_wea_now,from_=0,to=50, width=3,textvariable=m_weather_now_var, increment=10,format="%02.0f",wrap=True)
 m_weather_now.grid(row=0,column=3)
 
 tk.Label(info_wea_now,text="Zmax:").grid(row=0,column=4, padx=(10,0))
-zmax_spin=tk.Spinbox(info_wea_now,from_=40,to=62,textvariable=zmax_spin_var, width=5)
+zmax_spin=tk.Spinbox(info_wea_now,from_=40,to=62,textvariable=zmax_spin_var, width=5,wrap=True)
 zmax_spin.grid(row=0,column=5)
 
 tk.Label(info_wea_now,text="Hướng dịch chuyển:").grid(row=0,column=6, padx=(10,0))
@@ -648,10 +651,11 @@ velo_cbb.grid(row=0,column=9)
 location_max_frame=tk.Frame(weather_now_frame1)
 location_max_frame.grid(row=1,column=0,pady=5)
 tk.Label(location_max_frame,text="Cực đại PHVT tại:").pack(side='left')
+checkboxes_max = []
 for i, name in enumerate(province_names):
     sks=tk.Checkbutton(location_max_frame, text=name, variable=chks_max[i])
     sks.pack(side='left')
-
+    checkboxes_max.append(sks)
 #weather_1_3h_informations
 weather_1_3h=tk.Frame(frame,highlightbackground="black", highlightthickness=1)
 info_wea_1_3h=tk.Frame(weather_1_3h)
@@ -669,13 +673,13 @@ provivce_wea_now=tk.Frame(weather_now_frame1)
 provivce_wea_now.grid(row=3,column=0,pady=(0,5))
 #wether_1_3h_frame
 provivce_wea_1_3h=tk.Frame(weather_1_3h)
-provivce_wea_1_3h.grid(row=1,column=0,pady=5,padx=(61,61.5))
+provivce_wea_1_3h.grid(row=1,column=0,pady=5,padx=(54,55))
 #Lai_Chau
 lchau_frame_now=tk.LabelFrame(provivce_wea_now,text=name_lchau)
 lchau_frame_now.grid(row=0,column=0,pady=(0,5),sticky="w")
 lchau_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_lchau + " từ 1-3 giờ tới")
 lchau_frame_13h.grid(row=0,column=1,pady=(0,5),sticky='w')
-checkbutton_lc_now,checkbutton_lc_13h=pr.even_check_buttons(name_lchau,lchau_frame_now,lchau_frame_13h,chks_lc,chks_lc_13h,2,8)
+checkbutton_lc_now,checkbutton_lc_13h=pr.even_check_buttons(name_lchau,lchau_frame_now,lchau_frame_13h,chks_lc,chks_lc_13h,2,10)
 #Dien_Bien
 dbien_frame_now=tk.LabelFrame(provivce_wea_now,text=name_dbien)
 dbien_frame_now.grid(row=1,column=0,pady=(0,5),sticky="w")
@@ -687,25 +691,25 @@ sla_frame_now=tk.LabelFrame(provivce_wea_now,text=name_sla)
 sla_frame_now.grid(row=2,column=0,pady=(0,5),sticky="w")
 sla_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_sla + " từ 1-3 giờ tới")
 sla_frame_13h.grid(row=2,column=1,pady=(0,5),sticky="w")
-checkbutton_sl_now, checkbutton_sl_13h=pr.even_check_buttons(name_sla,sla_frame_now,sla_frame_13h,chks_sl,chks_sl_13h,3,8)
+checkbutton_sl_now, checkbutton_sl_13h=pr.even_check_buttons(name_sla,sla_frame_now,sla_frame_13h,chks_sl,chks_sl_13h,3,9.5)
 #Hoa_Binh
 hb_frame_now=tk.LabelFrame(provivce_wea_now,text=name_hbinh)
 hb_frame_now.grid(row=3,column=0,pady=(0,5),sticky="w")
 hb_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_hbinh + " từ 1-3 giờ tới")
 hb_frame_13h.grid(row=3,column=1,pady=(0,5),sticky="w")
-checkbutton_hb_now, checkbutton_hb_13h=pr.odd_check_buttons(name_hbinh,hb_frame_now,hb_frame_13h,chks_hb,chks_hb_13h,3,9)
+checkbutton_hb_now, checkbutton_hb_13h=pr.odd_check_buttons(name_hbinh,hb_frame_now,hb_frame_13h,chks_hb,chks_hb_13h,3,10.5)
 #Lao_Cai
 lcai_frame_now=tk.LabelFrame(provivce_wea_now,text=name_lcai)
 lcai_frame_now.grid(row=4,column=0,pady=(0,5),sticky="w")
 lcai_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_lcai + " từ 1-3 giờ tới")
 lcai_frame_13h.grid(row=4,column=1,pady=(0,5),sticky="w")
-checkbutton_lcai_now, checkbutton_lcai_13h=pr.odd_check_buttons(name_lcai,lcai_frame_now,lcai_frame_13h,chks_lcai,chks_lcai_13h,1,9)
+checkbutton_lcai_now, checkbutton_lcai_13h=pr.odd_check_buttons(name_lcai,lcai_frame_now,lcai_frame_13h,chks_lcai,chks_lcai_13h,1,10.5)
 #Yen_Bai
 ybai_frame_now=tk.LabelFrame(provivce_wea_now,text=name_ybai)
 ybai_frame_now.grid(row=5,column=0,pady=(0,5),sticky="w")
 ybai_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_ybai + "  từ 1-3 giờ tới")
 ybai_frame_13h.grid(row=5,column=1,pady=(0,5),sticky="w")
-checkbutton_yb_now, checkbutton_yb_13h=pr.odd_check_buttons(name_ybai,ybai_frame_now,ybai_frame_13h,chks_yb,chks_yb_13h,1,8)
+checkbutton_yb_now, checkbutton_yb_13h=pr.odd_check_buttons(name_ybai,ybai_frame_now,ybai_frame_13h,chks_yb,chks_yb_13h,1,9.0)
 
 #frame_2_right
 image_save_frame=tk.Frame(frame,bg="skyblue")
@@ -713,8 +717,8 @@ image_save_frame.grid(row=1,column=1)
 image_frame=tk.Frame(image_save_frame,highlightbackground="black", highlightthickness=1,relief="groove")
 image_frame.grid(row=0,column=0,padx=(5,0), pady=(5,0),sticky="n")
 #------
-image_none=tk.Label(image_frame,text="Ảnh")
-image_none.grid(row=0,column=0, padx=250, pady=(255,188))
+image_none=tk.Label(image_frame,text="")
+image_none.grid(row=0,column=0, padx=260, pady=(255,188))
 image_label=tk.Label(image_frame)
 image_label.grid(row=0,column=0,sticky="n") 
 sniping_but=tk.Button(image_frame,text="Cắt ảnh",bg='lightblue',command=sniping_image,cursor='hand2')
@@ -729,10 +733,10 @@ h_frame_save=tk.Frame(save_frame)
 h_frame_save.grid(row=0,column=0, sticky="news", pady=5,padx=(10,0))
 
 tk.Label(h_frame_save,text="Giờ phát tin:").grid(row=0,column=0)
-h_time_send=tk.Spinbox(h_frame_save,textvariable=h_time_send_var,from_=0,to=23, width=3,format="%02.0f")
+h_time_send=tk.Spinbox(h_frame_save,textvariable=h_time_send_var,from_=0,to=23, width=3,format="%02.0f",wrap=True)
 h_time_send.grid(row=0,column=1)
 tk.Label(h_frame_save,text=":").grid(row=0,column=2)
-m_time_send=tk.Spinbox(h_frame_save,from_=0,to=55,textvariable=m_time_send_var, width=3, increment=5,format="%02.0f")
+m_time_send=tk.Spinbox(h_frame_save,from_=0,to=55,textvariable=m_time_send_var, width=3, increment=5,format="%02.0f",wrap=True)
 m_time_send.grid(row=0,column=3,padx=(0,10))
 tk.Label(h_frame_save,text="Ngày:").grid(row=0,column=4)
 day_time_send=tk.Entry(h_frame_save,textvariable=day_time_send_var,width=15)
@@ -746,13 +750,13 @@ frame_save_buttons=tk.Frame(save_frame)
 frame_save_buttons.grid(row=1,column=0)
 
 save_news=tk.Button(frame_save_buttons,text="Lưu tin",width=12, height=2,bg='lightblue',command=saving_news,cursor='hand2')
-save_news.grid(row=0,column=0,padx=15)
-send_ttram=tk.Button(frame_save_buttons,text="Gửi trưởng trạm", height=2,
+save_news.grid(row=0,column=0,padx=30)
+send_ttram=tk.Button(frame_save_buttons,text="Gửi duyệt tin", height=2,width=12,
                      command=lambda:send_mail_button(1),bg='lightblue',cursor='hand2')
 send_ttram.grid(row=0,column=1,padx=15)
-send_all=tk.Button(frame_save_buttons,text="Gửi tin", width=12,height=2,bg='lightblue', 
+send_all=tk.Button(frame_save_buttons,text="Phát tin", width=12,height=2,bg='lightblue', 
                    command=lambda:send_mail_button(0),cursor='hand2')
-send_all.grid(row=0,column=2,padx=15)
+send_all.grid(row=0,column=2,padx=30)
 reset_news=tk.Button(frame_save_buttons,text="Làm mới",width=12, height=2,command=clear_button,
                      bg='lightblue',cursor='hand2')
 reset_news.grid(row=1,column=0,padx=15,pady=5)
