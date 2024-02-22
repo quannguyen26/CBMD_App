@@ -37,7 +37,7 @@ def saving_login(values):
 
 def login(event=None):
     if user_entry.get()=='' or password_entry.get()=='':
-        messagebox.showerror('Lỗi','Chưa nhập thông tin đăng nhập')
+        messagebox.showerror('Lỗi','Nhập thông tin đăng nhập')
     elif user_entry.get()=='nguyenkhacquan' and password_entry.get()=='12345':
         saving_login("Nguyễn Khắc Quân")
         window_login.destroy()

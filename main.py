@@ -18,8 +18,8 @@ from email.mime.base import MIMEBase
 from email import encoders,utils
 import subprocess
 import sqlite3
-
-#----------------------------------------------------------------------------------
+import webbrowser
+#---------------------------------------------------------------------------------------
 
 ###### Search in database   
 ###### Def for searching news from Database ###
@@ -389,7 +389,7 @@ def saving_news():
             except:
                messagebox.showerror("Lỗi","Không lưu được tin")
          else:
-            messagebox.showerror("Lỗi","L vị trí Zmax")
+            messagebox.showerror("Lỗi","Lỗi vị trí Zmax")
 
 ########## Def for clear #################
 def clear_button(for_=0):
@@ -457,7 +457,22 @@ def save_file():
             os.makedirs(path_folder)
          shutil.move(resource_path("news\\"+name_file), path_folder)
          path_file_news=resource_path(path_folder+"\\"+name_file)
-
+########### Def to Open web AMO ###########
+def open_web():
+   url = "http://hymetnet.gov.vn/radar/PHA"
+   # getting path 
+   chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+   # First registers the new browser 
+   webbrowser.register('chrome', None,  
+                     webbrowser.BackgroundBrowser(chrome_path))  
+   webbrowser.get('chrome').open(url)
+########### Def to Open web Anydesk ###########
+def open_anydesk():
+   try:
+        # Gọi lệnh mở AnyDesk từ dòng lệnh
+        os.startfile("C:\\Program Files (x86)\\AnyDesk\\AnyDesk.exe")
+   except Exception as e:
+        print("Đã có lỗi xảy ra:", e)
 ###### Def to Send gmail to adresses ######
 def send_mail_button(ed_send):
    def send_mail(email_list):
@@ -550,7 +565,7 @@ icon_image=ImageTk.PhotoImage(file=resource_path('app_images\\radar.ico'))
 window.iconphoto(False,icon_image)
 def disable_event():
    pass
-#window.protocol("WM_DELETE_WINDOW", disable_event)
+#window.protocol("WM_DELETE_WINDOW", disable_event) #Can't press (X)
 #### VARS #####
 searh_ent_var=tk.IntVar(value="")
 number_news_ent_var=tk.IntVar()
@@ -633,7 +648,7 @@ m_weather_now=tk.Spinbox(info_wea_now,from_=0,to=50, width=3,textvariable=m_weat
 m_weather_now.grid(row=0,column=3)
 
 tk.Label(info_wea_now,text="Zmax:").grid(row=0,column=4, padx=(10,0))
-zmax_spin=tk.Spinbox(info_wea_now,from_=40,to=62,textvariable=zmax_spin_var, width=5,wrap=True)
+zmax_spin=tk.Spinbox(info_wea_now,from_=39,to=65,textvariable=zmax_spin_var, width=5,wrap=True)
 zmax_spin.grid(row=0,column=5)
 
 tk.Label(info_wea_now,text="Hướng dịch chuyển:").grid(row=0,column=6, padx=(10,0))
@@ -718,13 +733,15 @@ image_frame=tk.Frame(image_save_frame,highlightbackground="black", highlightthic
 image_frame.grid(row=0,column=0,padx=(5,0), pady=(5,0),sticky="n")
 #------
 image_none=tk.Label(image_frame,text="")
-image_none.grid(row=0,column=0, padx=260, pady=(255,188))
+image_none.grid(row=0,column=0, padx=260, pady=(255,188),columnspan=3)
 image_label=tk.Label(image_frame)
-image_label.grid(row=0,column=0,sticky="n") 
+image_label.grid(row=0,column=0,sticky="n",columnspan=3) 
 sniping_but=tk.Button(image_frame,text="Cắt ảnh",bg='lightblue',command=sniping_image,cursor='hand2')
-sniping_but.grid(row=1,column=0, pady=5,ipadx=10,ipady=5)
-
-
+sniping_but.grid(row=1,column=2, pady=5,padx=(0,10),ipadx=10,ipady=5,sticky="w") 
+open_web_but=tk.Button(image_frame,text="Mở Web",bg='lightblue',cursor='hand2',command=open_web)
+open_web_but.grid(row=1,column=0, padx=(0,20),pady=5,ipadx=10,ipady=5,sticky="e")
+open_anydesk_but=tk.Button(image_frame,text="AnyDesk",bg='lightblue',cursor='hand2',command=open_anydesk)
+open_anydesk_but.grid(row=1,column=1, padx=(0,25),pady=5,ipadx=10,ipady=5)
 #Save frame
 save_frame=tk.Frame(image_save_frame,highlightbackground="black", highlightthickness=1)
 save_frame.grid(row=1,column=0,pady=(5,0),padx=(5,0),sticky="news")
