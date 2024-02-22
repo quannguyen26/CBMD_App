@@ -565,7 +565,7 @@ icon_image=ImageTk.PhotoImage(file=resource_path('app_images\\radar.ico'))
 window.iconphoto(False,icon_image)
 def disable_event():
    pass
-#window.protocol("WM_DELETE_WINDOW", disable_event) #Can't press (X)
+#window.protocol("WM_DELETE_WINDOW", disable_event)
 #### VARS #####
 searh_ent_var=tk.IntVar(value="")
 number_news_ent_var=tk.IntVar()
@@ -648,7 +648,7 @@ m_weather_now=tk.Spinbox(info_wea_now,from_=0,to=50, width=3,textvariable=m_weat
 m_weather_now.grid(row=0,column=3)
 
 tk.Label(info_wea_now,text="Zmax:").grid(row=0,column=4, padx=(10,0))
-zmax_spin=tk.Spinbox(info_wea_now,from_=39,to=65,textvariable=zmax_spin_var, width=5,wrap=True)
+zmax_spin=tk.Spinbox(info_wea_now,from_=40,to=62,textvariable=zmax_spin_var, width=5,wrap=True)
 zmax_spin.grid(row=0,column=5)
 
 tk.Label(info_wea_now,text="Hướng dịch chuyển:").grid(row=0,column=6, padx=(10,0))
@@ -767,7 +767,7 @@ frame_save_buttons=tk.Frame(save_frame)
 frame_save_buttons.grid(row=1,column=0)
 
 save_news=tk.Button(frame_save_buttons,text="Lưu tin",width=12, height=2,bg='lightblue',command=saving_news,cursor='hand2')
-save_news.grid(row=0,column=0,padx=30)
+save_news.grid(row=0,column=0,padx=15)
 send_ttram=tk.Button(frame_save_buttons,text="Gửi duyệt tin", height=2,width=12,
                      command=lambda:send_mail_button(1),bg='lightblue',cursor='hand2')
 send_ttram.grid(row=0,column=1,padx=15)
