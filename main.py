@@ -19,6 +19,7 @@ from email import encoders,utils
 import subprocess
 import sqlite3
 import webbrowser
+import socket
 #---------------------------------------------------------------------------------------
 
 ###### Search in database   
@@ -457,22 +458,38 @@ def save_file():
             os.makedirs(path_folder)
          shutil.move(resource_path("news\\"+name_file), path_folder)
          path_file_news=resource_path(path_folder+"\\"+name_file)
+#######Def for checking internet connection######
+def check_internet_connection(host="8.8.8.8", port=53, timeout=3):
+      try:
+         socket.setdefaulttimeout(timeout)
+         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+         return True
+      except socket.error as ex:
+         return False
 ########### Def to Open web AMO ###########
 def open_web():
-   url = "http://hymetnet.gov.vn/radar/PHA"
-   # getting path 
-   chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-   # First registers the new browser 
-   webbrowser.register('chrome', None,  
-                     webbrowser.BackgroundBrowser(chrome_path))  
-   webbrowser.get('chrome').open(url)
+   if check_internet_connection():
+      url = "http://hymetnet.gov.vn/radar/PHA"
+      # getting path 
+      chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+      # First registers the new browser 
+      webbrowser.register('chrome', None,  
+                        webbrowser.BackgroundBrowser(chrome_path))  
+      webbrowser.get('chrome').open(url)
+   else:
+      messagebox.showerror("Lỗi","Không có kết nối Internet")
 ########### Def to Open web Anydesk ###########
 def open_anydesk():
-   try:
-        # Gọi lệnh mở AnyDesk từ dòng lệnh
-        os.startfile("C:\\Program Files (x86)\\AnyDesk\\AnyDesk.exe")
-   except Exception as e:
-        print("Đã có lỗi xảy ra:", e)
+   if check_internet_connection():
+      try:
+         # Gọi lệnh mở AnyDesk từ dòng lệnh
+         os.startfile("C:\\Program Files (x86)\\AnyDesk\\AnyDesk.exe")
+      except Exception as e:
+         print("Đã có lỗi xảy ra:", e)
+   else:
+      messagebox.showerror("Lỗi","Không có kết nối Internet")
+
+
 ###### Def to Send gmail to adresses ######
 def send_mail_button(ed_send):
    def send_mail(email_list):
@@ -509,38 +526,40 @@ def send_mail_button(ed_send):
          TIE_server.quit()
       except:
          messagebox.showerror("Lỗi","Chưa lưu bản tin")
-
-   #Read mail edress from dong_tpl\\mail.txt   
-   with open(resource_path('dong_tpl\\mail.txt'), 'r') as file:
-      content_list = [line.strip() for line in file.readlines() if not line.startswith('#')]
-   
-   #Chọn tới các địa chỉ: 0=các địa chỉ; 1= trưởng trạm
-   if ed_send==0: #Tới các địa chỉ
-      dict2=dict_update()
-      if dict1 == dict2:
-         lastest_id=lastest_idnews()
-         if number_news_ent_var.get() > lastest_id:
-            #send_mail(", ".join(content_list[:]))
-            print("Gửi tới các địa chỉ")
-            save_file()
-            saving_database()
-            clear_button()
+      
+   if check_internet_connection():
+      #Read mail edress from dong_tpl\\mail.txt   
+      with open(resource_path('dong_tpl\\mail.txt'), 'r') as file:
+         content_list = [line.strip() for line in file.readlines() if not line.startswith('#')]   
+      #Chọn tới các địa chỉ: 0=các địa chỉ; 1= trưởng trạm
+      if ed_send==0: #Tới các địa chỉ
+         dict2=dict_update()
+         if dict1 == dict2:
+            lastest_id=lastest_idnews()
+            if number_news_ent_var.get() > lastest_id:
+               #send_mail(", ".join(content_list[:]))
+               print("Gửi tới các địa chỉ")
+               save_file()
+               saving_database()
+               clear_button()
+            else:
+               ask_update=messagebox.askokcancel("Tin này đã được gửi","Bạn có muốn gửi lại?")
+               if ask_update:
+                  update_database()   
+                  print("Gửi lại tới các địa chỉ")
+                  clear_button()          
          else:
-            ask_update=messagebox.askokcancel("Tin này đã được gửi","Bạn có muốn gửi lại?")
-            if ask_update:
-               update_database()   
-               print("Gửi lại tới các địa chỉ")
-               clear_button()          
-      else:
-         messagebox.showerror("Lỗi","Chưa lưu bản tin")
-   elif ed_send==1: #tới trưởng trạm
-      dict2=dict_update()
-      if dict1 == dict2:
-         #send_mail(content_list[0])
-         print("Gửi tới trưởng trạm")
-      else:
-         messagebox.showerror("Lỗi","Chưa lưu bản tin")
-#Def to logout, back to login
+            messagebox.showerror("Lỗi","Chưa lưu bản tin")
+      elif ed_send==1: #tới trưởng trạm
+         dict2=dict_update()
+         if dict1 == dict2:
+            #send_mail(content_list[0])
+            print("Gửi tới trưởng trạm")
+         else:
+            messagebox.showerror("Lỗi","Chưa lưu bản tin")
+   else:
+      messagebox.showerror("Lỗi","Không có kết nối Internet")  
+#######Def to logout, back to login
 import time
 def logout():
    window.destroy()
@@ -736,12 +755,12 @@ image_none=tk.Label(image_frame,text="")
 image_none.grid(row=0,column=0, padx=260, pady=(255,188),columnspan=3)
 image_label=tk.Label(image_frame)
 image_label.grid(row=0,column=0,sticky="n",columnspan=3) 
-sniping_but=tk.Button(image_frame,text="Cắt ảnh",bg='lightblue',command=sniping_image,cursor='hand2')
-sniping_but.grid(row=1,column=2, pady=5,padx=(0,10),ipadx=10,ipady=5,sticky="w") 
 open_web_but=tk.Button(image_frame,text="Mở Web",bg='lightblue',cursor='hand2',command=open_web)
-open_web_but.grid(row=1,column=0, padx=(0,20),pady=5,ipadx=10,ipady=5,sticky="e")
+open_web_but.grid(row=1,column=0,ipadx=10,ipady=5,sticky="")
 open_anydesk_but=tk.Button(image_frame,text="AnyDesk",bg='lightblue',cursor='hand2',command=open_anydesk)
-open_anydesk_but.grid(row=1,column=1, padx=(0,25),pady=5,ipadx=10,ipady=5)
+open_anydesk_but.grid(row=1,column=1,pady=5,ipadx=10,ipady=5,sticky="")
+sniping_but=tk.Button(image_frame,text="Cắt ảnh",bg='lightblue',command=sniping_image,cursor='hand2')
+sniping_but.grid(row=1,column=2,ipadx=10,ipady=5,sticky="")
 #Save frame
 save_frame=tk.Frame(image_save_frame,highlightbackground="black", highlightthickness=1)
 save_frame.grid(row=1,column=0,pady=(5,0),padx=(5,0),sticky="news")
@@ -767,22 +786,23 @@ frame_save_buttons=tk.Frame(save_frame)
 frame_save_buttons.grid(row=1,column=0)
 
 save_news=tk.Button(frame_save_buttons,text="Lưu tin",width=12, height=2,bg='lightblue',command=saving_news,cursor='hand2')
-save_news.grid(row=0,column=0,padx=15)
+save_news.grid(row=0,column=0,padx=(30,20))
 send_ttram=tk.Button(frame_save_buttons,text="Gửi duyệt tin", height=2,width=12,
                      command=lambda:send_mail_button(1),bg='lightblue',cursor='hand2')
-send_ttram.grid(row=0,column=1,padx=15)
+send_ttram.grid(row=0,column=1,padx=20)
 send_all=tk.Button(frame_save_buttons,text="Phát tin", width=12,height=2,bg='lightblue', 
                    command=lambda:send_mail_button(0),cursor='hand2')
-send_all.grid(row=0,column=2,padx=30)
+send_all.grid(row=0,column=2,padx=(20,30))
+
 reset_news=tk.Button(frame_save_buttons,text="Làm mới",width=12, height=2,command=clear_button,
                      bg='lightblue',cursor='hand2')
-reset_news.grid(row=1,column=0,padx=15,pady=5)
+reset_news.grid(row=1,column=0,padx=(30,20),pady=5)
 update_news=tk.Button(frame_save_buttons,text="Cập nhật", height=2,width=12,
                      bg='lightblue',command=lambda:update_database(1),cursor='hand2')
-update_news.grid(row=1,column=1,padx=15,pady=5)
+update_news.grid(row=1,column=1,padx=20,pady=5)
 logout_news=tk.Button(frame_save_buttons,text="Đăng xuất", height=2,width=12,
                      bg='lightblue',command=logout,cursor='hand2')
-logout_news.grid(row=1,column=2,padx=15,pady=5)
+logout_news.grid(row=1,column=2,padx=(20,30),pady=5)
 
 #Khóa không cho nhập vào spinbox
 def on_click(event):
