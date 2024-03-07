@@ -2,6 +2,7 @@ import tkinter as tk
 from tkcalendar import DateEntry
 from docx.shared import Mm
 from tkinter.ttk import Combobox
+from tkinter.ttk import Progressbar
 from tkinter import messagebox
 from PIL import Image,ImageTk
 from datetime import datetime
@@ -20,6 +21,8 @@ import subprocess
 import sqlite3
 import webbrowser
 import socket
+from threading import Thread
+
 #---------------------------------------------------------------------------------------
 
 ###### Search in database   
@@ -492,7 +495,7 @@ def open_anydesk():
 
 ###### Def to Send gmail to adresses ######
 def send_mail_button(ed_send):
-   def send_mail(email_list):
+   def send_mail(email_list,progress_callback):
       pswd = "kyvofwfivxxltzuu" 
       email_from = "radaphadintaybac@gmail.com"
       msg = MIMEMultipart()
@@ -508,24 +511,30 @@ def send_mail_button(ed_send):
       Email: radaphadintaybac@gmail.com</i></p>'''
       msg.attach(MIMEText(html, 'html'))
       try:
-         attachment= open("news\\"+name_file, 'rb')  # r for read and b for binary
+         progress_callback(25)
+         attachment= open(resource_path("news\\"+name_file), 'rb')  # r for read and b for binary
          # Encode as base 64
          attachment_package = MIMEBase('application', 'octet-stream')
          attachment_package.set_payload((attachment).read())
+         progress_callback(50)
          encoders.encode_base64(attachment_package)
          attachment_package.add_header('Content-Disposition', "attachment; filename= " + name_file)
          msg.attach(attachment_package)
       # Cast as string
          text = msg.as_string()
       # Connect with the server
-         TIE_server = smtplib.SMTP("smtp.gmail.com", 587)
+         TIE_server = smtplib.SMTP("smtp.gmail.com", 587,timeout=120)
          TIE_server.starttls()
          TIE_server.login(email_from, pswd)
-         TIE_server.sendmail(email_from, email_list, text)  
-      # Close the port
+         progress_callback(75)
+         #TIE_server.sendmail(email_from, email_list, text)
+      #Close the port
          TIE_server.quit()
-      except:
-         messagebox.showerror("Lỗi","Chưa lưu bản tin")
+         progress_callback(100)
+      except Exception as e:
+         print("Đã có lỗi xảy ra:", e)
+      #except:
+      #   messagebox.showerror("Lỗi","Chưa lưu bản tin")
       
    if check_internet_connection():
       #Read mail edress from dong_tpl\\mail.txt   
@@ -545,22 +554,33 @@ def send_mail_button(ed_send):
             else:
                ask_update=messagebox.askokcancel("Tin này đã được gửi","Bạn có muốn gửi lại?")
                if ask_update:
-                  update_database()   
                   print("Gửi lại tới các địa chỉ")
+                  #send_mail(", ".join(content_list[:]))
+                  update_database()
                   clear_button()          
          else:
             messagebox.showerror("Lỗi","Chưa lưu bản tin")
       elif ed_send==1: #tới trưởng trạm
          dict2=dict_update()
          if dict1 == dict2:
-            #send_mail(content_list[0])
+            Thread(target=send_mail,args=(content_list[0],update_progress),daemon=True).start()
             print("Gửi tới trưởng trạm")
+            
          else:
             messagebox.showerror("Lỗi","Chưa lưu bản tin")
    else:
-      messagebox.showerror("Lỗi","Không có kết nối Internet")  
-#######Def to logout, back to login
-import time
+      messagebox.showerror("Lỗi","Không có kết nối Internet")
+######### Def to uptade for % for progressbar
+def update_progress(progress):
+    progress_window.deiconify()
+    progress_bar['value'] = 0  # Khởi tạo lại giá trị progressbar
+    progress_label.config(text="0%")
+    progress_bar['value'] = progress
+    progress_label.config(text=f"{progress}%")
+    progress_window.update_idletasks()
+    if progress >= 100:
+        progress_window.after(500, progress_window.withdraw)  
+########## Def to logout, back to login
 def logout():
    window.destroy()
    subprocess.Popen(['python' , 'login.py'],stdout=subprocess.PIPE)
@@ -677,7 +697,7 @@ direc_cbb=Combobox(info_wea_now,values=["Bắc","Bắc Đông Bắc","Đông B�
 direc_cbb.grid(row=0,column=7)
 
 #Velocity
-tk.Label(info_wea_now,text="Vận tốc:").grid(row=0,column=8, padx=(10,0))
+tk.Label(info_wea_now,text="Vận tốc:").grid(row=0,column=8, padx=(12,0))
 velo_cbb=Combobox(info_wea_now,values=["10 – 15","15 – 20","20 – 25", "25 – 30","30 – 35","35 – 40"],width=6,state="readonly")
 velo_cbb.grid(row=0,column=9)
 
@@ -707,7 +727,7 @@ provivce_wea_now=tk.Frame(weather_now_frame1)
 provivce_wea_now.grid(row=3,column=0,pady=(0,5))
 #wether_1_3h_frame
 provivce_wea_1_3h=tk.Frame(weather_1_3h)
-provivce_wea_1_3h.grid(row=1,column=0,pady=5,padx=(54,55))
+provivce_wea_1_3h.grid(row=1,column=0,pady=5,padx=(54,54))
 #Lai_Chau
 lchau_frame_now=tk.LabelFrame(provivce_wea_now,text=name_lchau)
 lchau_frame_now.grid(row=0,column=0,pady=(0,5),sticky="w")
@@ -788,7 +808,7 @@ frame_save_buttons.grid(row=1,column=0)
 save_news=tk.Button(frame_save_buttons,text="Lưu tin",width=12, height=2,bg='lightblue',command=saving_news,cursor='hand2')
 save_news.grid(row=0,column=0,padx=(30,20))
 send_ttram=tk.Button(frame_save_buttons,text="Gửi duyệt tin", height=2,width=12,
-                     command=lambda:send_mail_button(1),bg='lightblue',cursor='hand2')
+                     command=lambda:send_mail_button(1),bg='lightblue',cursor='hand2') #Thread(target=send_mail_button,args=(1,),daemon=True)
 send_ttram.grid(row=0,column=1,padx=20)
 send_all=tk.Button(frame_save_buttons,text="Phát tin", width=12,height=2,bg='lightblue', 
                    command=lambda:send_mail_button(0),cursor='hand2')
@@ -813,6 +833,17 @@ spinboxes = [h_weather_now, m_weather_now, h_time_send, m_time_send,zmax_spin]
 for spinbox in spinboxes:
     spinbox.bind("<Key>", lambda e: "break")
     spinbox.bind("<FocusIn>", on_click)
+
+progress_window = tk.Toplevel(window)
+progress_window.title("Gửi mail ...")
+progress_window.geometry("300x80+640+350")
+progress_window.resizable(False,False)
+progress_window.withdraw()
+progress_window.iconphoto(False,icon_image)
+progress_bar = Progressbar(progress_window, orient=tk.HORIZONTAL, length=200, mode='determinate')
+progress_bar.pack(pady=(20,5))
+progress_label = tk.Label(progress_window, text="0%")
+progress_label.pack()
 
 clear_button()
 window.mainloop()

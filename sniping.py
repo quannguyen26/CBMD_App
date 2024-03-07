@@ -4,7 +4,16 @@ import tkinter as tk
 from PIL import ImageGrab
 import numpy as np
 import cv2
+import os
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
 
+    return os.path.join(base_path, relative_path)
 
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
@@ -13,15 +22,15 @@ class MyWidget(QtWidgets.QWidget):
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
         self.setGeometry(0, 0, screen_width, screen_height)
-        self.setWindowTitle('Ứng dụng cắt ảnh')
+        self.setWindowTitle('Phần mềm ra bản tin cảnh báo mưa dông')
         self.begin = QtCore.QPoint()
         self.end = QtCore.QPoint()
         self.setWindowOpacity(0.3)
         QtWidgets.QApplication.setOverrideCursor(
             QtGui.QCursor(QtCore.Qt.CrossCursor)
         )
+        self.setWindowIcon(QtGui.QIcon(resource_path('app_images\\radar.ico')))
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        print('Capture the screen...')
         self.show()
 
     def paintEvent(self, event):

@@ -1,11 +1,11 @@
 import tkinter as tk
 province_districts={
-    "Lai Châu":["Mường Tè","Nậm Nhùn","Sìn Hồ","Phong Thổ","Tam Đường","Tp.Lai Châu","Tân Uyên","Than Uyên"],
-    "Điện Biên":["Mường Nhé","Nậm Pồ","Mường Chà","Tx.Mường Lay","Tủa Chùa","Mường Ảng","Tuần Giáo","Điện Biên","Điện Biên Đông","Tp.Điên Biên Phủ"],
-    "Sơn La":["Quỳnh Nhai","Thuận Châu","Sông Mã","Sốp Cộp","Mường La","Tp.Sơn La","Mai Sơn","Yên Châu","Bắc Yên","Phù Yên","Mộc Châu","Vân Hồ"],
-    "Hòa Bình":["Mai Châu","Đà Bắc","Tân Lạc","Cao Phong","Tp.Hòa Bình","Kì Sơn","Lương Sơn","Kim Bôi","Lạc Sơn","Yên Thủy","Lạc Thủy"],
-    "Lào Cai":["Bát Xát","Sa Pa","Văn Bàn","Tp.Lào Cai","Bảo Thắng","Bảo Yên","Bắc Hà","Mường Khương","Si Ma Cai"],
-    "Yên Bái":["Mù Căng Chải","Văn Yên","Lục Yên","Trạm Tấu","Văn Chấn","Trấn Yên","Tx.Nghĩa Lộ","Tp.Yên Bái","Yên Bình"]
+    "Lai Châu":["Mường Tè","Nậm Nhùn","Sìn Hồ","Phong Thổ","Tam Đường","Tp. Lai Châu","Tân Uyên","Than Uyên"],
+    "Điện Biên":["Mường Nhé","Nậm Pồ","Mường Chà","Tx. Mường Lay","Tủa Chùa","Mường Ảng","Tuần Giáo","Điện Biên","Điện Biên Đông","Tp. Điên Biên Phủ"],
+    "Sơn La":["Quỳnh Nhai","Thuận Châu","Sông Mã","Sốp Cộp","Mường La","Tp. Sơn La","Mai Sơn","Yên Châu","Bắc Yên","Phù Yên","Mộc Châu","Vân Hồ"],
+    "Hòa Bình":["Mai Châu","Đà Bắc","Tân Lạc","Cao Phong","Tp. Hòa Bình","Kì Sơn","Lương Sơn","Kim Bôi","Lạc Sơn","Yên Thủy","Lạc Thủy"],
+    "Lào Cai":["Bát Xát","Sa Pa","Văn Bàn","Tp. Lào Cai","Bảo Thắng","Bảo Yên","Bắc Hà","Mường Khương","Si Ma Cai"],
+    "Yên Bái":["Mù Căng Chải","Văn Yên","Lục Yên","Trạm Tấu","Văn Chấn","Trấn Yên","Tx. Nghĩa Lộ","Tp. Yên Bái","Yên Bình"]
     }
 def check_district(pro_var,agu_pro,all_check,all_check2):
     n=0
