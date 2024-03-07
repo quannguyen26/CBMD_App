@@ -2,7 +2,7 @@
 #tuanpmdtb@gmail.com
 mr.nguyenkhacquan@gmail.com
 #Mail các địa chỉ nhận:
-#nguyenquan.flc@gmail.com
+nguyenquan.flc@gmail.com
 #vulongkttv@gmail.com
 #themeteo@gmail.com
 #vumanhcuong0474@gmail.com
@@ -45,4 +45,3 @@ mr.nguyenkhacquan@gmail.com
 #ttkttvthaibinh@gmail.com
 #kttvtn@gmail.com
 #daikttvvinhphuc@gmail.com
-#tuanpmdtb@gmail.com

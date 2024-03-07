@@ -23,6 +23,7 @@ import webbrowser
 import socket
 from threading import Thread
 
+
 #---------------------------------------------------------------------------------------
 
 ###### Search in database   
@@ -481,34 +482,33 @@ def open_web():
       webbrowser.get('chrome').open(url)
    else:
       messagebox.showerror("Lỗi","Không có kết nối Internet")
-########### Def to Open web Anydesk ###########
+########### Def to Open Anydesk ###########
 def open_anydesk():
    if check_internet_connection():
-      try:
-         # Gọi lệnh mở AnyDesk từ dòng lệnh
-         os.startfile("C:\\Program Files (x86)\\AnyDesk\\AnyDesk.exe")
-      except Exception as e:
-         print("Đã có lỗi xảy ra:", e)
+      # Đường dẫn đến chương trình AnyDesk.exe
+      anydesk_path = r'"C:\Program Files (x86)\AnyDesk\AnyDesk.exe"'
+      # Thực hiện lệnh
+      command = f'echo vaisalaWRR2019 | {anydesk_path} 569163141 --with-password'
+      process = subprocess.run(command, shell=True, check=True, text=True)
    else:
       messagebox.showerror("Lỗi","Không có kết nối Internet")
 
-
 ###### Def to Send gmail to adresses ######
 def send_mail_button(ed_send):
-   def send_mail(email_list,progress_callback):
+   def send_mail(email_string,progress_callback):
       pswd = "kyvofwfivxxltzuu" 
       email_from = "radaphadintaybac@gmail.com"
       msg = MIMEMultipart()
       msg['From'] = utils.formataddr(('Ra đa Pha Đin', email_from))
-      msg['To'] = email_list
+      msg['To'] = email_string
       subject=day_time_send_var.get()[0:2]+"."+day_time_send_var.get()[3:5]+"."+day_time_send_var.get()[6:10]+"- "+"Bản tin cảnh báo mưa dông.RDPD -"+ number_news_ent.get()
       msg['Subject'] = subject
       html = '''<p><i>**************<br>
       Trạm Ra đa thời tiết Pha Đin<br>
       Đài Khí tượng Thủy văn khu vực Miền núi phía Bắc<br>
       Địa chỉ: Xã Tỏa Tình - Huyện Tuần Giáo - Tỉnh Điện Biên<br>
-      Điện thoại:  0326 086 288<br>
-      Email: radaphadintaybac@gmail.com</i></p>'''
+      Điện thoại: 0326 086 288 <br>
+      Email: radaphadintaybac@gmail.com</i></p>''' 
       msg.attach(MIMEText(html, 'html'))
       try:
          progress_callback(25)
@@ -527,14 +527,16 @@ def send_mail_button(ed_send):
          TIE_server.starttls()
          TIE_server.login(email_from, pswd)
          progress_callback(75)
-         #TIE_server.sendmail(email_from, email_list, text)
+         TIE_server.sendmail(email_from, [email.strip() for email in email_string.split(',')], text)
       #Close the port
          TIE_server.quit()
          progress_callback(100)
+      except FileNotFoundError:
+         progress_window.withdraw()
+         messagebox.showerror("Lỗi","Chưa lưu bản tin")
       except Exception as e:
+         progress_window.withdraw()
          print("Đã có lỗi xảy ra:", e)
-      #except:
-      #   messagebox.showerror("Lỗi","Chưa lưu bản tin")
       
    if check_internet_connection():
       #Read mail edress from dong_tpl\\mail.txt   
@@ -546,16 +548,16 @@ def send_mail_button(ed_send):
          if dict1 == dict2:
             lastest_id=lastest_idnews()
             if number_news_ent_var.get() > lastest_id:
-               #send_mail(", ".join(content_list[:]))
+               send_mail(", ".join(content_list[:]),update_progress)
                print("Gửi tới các địa chỉ")
                save_file()
                saving_database()
                clear_button()
             else:
-               ask_update=messagebox.askokcancel("Tin này đã được gửi","Bạn có muốn gửi lại?")
+               ask_update=messagebox.askokcancel("Thông báo !","Bản tin này đã từng được gửi, bạn có muốn gửi lại?")
                if ask_update:
-                  print("Gửi lại tới các địa chỉ")
-                  #send_mail(", ".join(content_list[:]))
+                  send_mail(", ".join(content_list[:]),update_progress)
+                  print("Gửi tới các địa chỉ")
                   update_database()
                   clear_button()          
          else:
@@ -565,7 +567,6 @@ def send_mail_button(ed_send):
          if dict1 == dict2:
             Thread(target=send_mail,args=(content_list[0],update_progress),daemon=True).start()
             print("Gửi tới trưởng trạm")
-            
          else:
             messagebox.showerror("Lỗi","Chưa lưu bản tin")
    else:
@@ -579,7 +580,7 @@ def update_progress(progress):
     progress_label.config(text=f"{progress}%")
     progress_window.update_idletasks()
     if progress >= 100:
-        progress_window.after(500, progress_window.withdraw)  
+        progress_window.after(100, progress_window.withdraw)  
 ########## Def to logout, back to login
 def logout():
    window.destroy()
@@ -777,7 +778,7 @@ image_label=tk.Label(image_frame)
 image_label.grid(row=0,column=0,sticky="n",columnspan=3) 
 open_web_but=tk.Button(image_frame,text="Mở Web",bg='lightblue',cursor='hand2',command=open_web)
 open_web_but.grid(row=1,column=0,ipadx=10,ipady=5,sticky="")
-open_anydesk_but=tk.Button(image_frame,text="AnyDesk",bg='lightblue',cursor='hand2',command=open_anydesk)
+open_anydesk_but=tk.Button(image_frame,text="AnyDesk",bg='lightblue',cursor='hand2',command=lambda:Thread(target=open_anydesk).start())
 open_anydesk_but.grid(row=1,column=1,pady=5,ipadx=10,ipady=5,sticky="")
 sniping_but=tk.Button(image_frame,text="Cắt ảnh",bg='lightblue',command=sniping_image,cursor='hand2')
 sniping_but.grid(row=1,column=2,ipadx=10,ipady=5,sticky="")
@@ -808,7 +809,7 @@ frame_save_buttons.grid(row=1,column=0)
 save_news=tk.Button(frame_save_buttons,text="Lưu tin",width=12, height=2,bg='lightblue',command=saving_news,cursor='hand2')
 save_news.grid(row=0,column=0,padx=(30,20))
 send_ttram=tk.Button(frame_save_buttons,text="Gửi duyệt tin", height=2,width=12,
-                     command=lambda:send_mail_button(1),bg='lightblue',cursor='hand2') #Thread(target=send_mail_button,args=(1,),daemon=True)
+                     command=lambda:send_mail_button(1),bg='lightblue',cursor='hand2')
 send_ttram.grid(row=0,column=1,padx=20)
 send_all=tk.Button(frame_save_buttons,text="Phát tin", width=12,height=2,bg='lightblue', 
                    command=lambda:send_mail_button(0),cursor='hand2')
