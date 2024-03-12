@@ -8,4 +8,5 @@ dependencies:
   - pillow
   - numpy
   - PyQt5
+  - tkcalendar
 prefix: C:\Users\Admin\anaconda3\envs\cbmd_env

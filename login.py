@@ -25,10 +25,16 @@ window_login.iconphoto(False, icon_image)
 bg_label.grid(row=0,column=0)
 login_frame=tk.Frame(window_login)
 login_frame.place(x=500,y=300)
+year_database_login=datetime.now().strftime("%d/%m/%Y")[6:10]
 def saving_login(values):
-   cbmd_db=sqlite3.connect("cbmd_database_2024.db")
+   cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_login}.db')
    mycursor = cbmd_db.cursor()
-   query='''INSERT INTO login_2024 (name_login,date_login) VALUES (?,?)'''
+   mycursor.execute("""CREATE TABLE IF NOT EXISTS cbmd_login(
+	"id_login"	INTEGER NOT NULL,
+	"name_login"	TEXT,
+	"date_login"	TEXT,
+	PRIMARY KEY("id_login" AUTOINCREMENT))""")
+   query='''INSERT INTO cbmd_login (name_login,date_login) VALUES (?,?)'''
    date=datetime.now()
    val=(values,date)
    mycursor.execute(query,val)

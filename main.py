@@ -7,6 +7,7 @@ from tkinter import messagebox
 from PIL import Image,ImageTk
 from datetime import datetime
 import os
+import glob
 import io
 import sys
 import shutil
@@ -23,9 +24,30 @@ import webbrowser
 import socket
 from threading import Thread
 
-
-#---------------------------------------------------------------------------------------
-
+#---------------------------------------DATABASE---------------------------------------------
+#### Def for get lastest id_news set for id_news entry, allway make a database base on year when open app
+year_database_main=datetime.now().strftime("%d/%m/%Y")[6:10]
+def lastest_idnews():
+    cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
+    mycursor = cbmd_db.cursor()
+    mycursor.execute("""CREATE TABLE IF NOT EXISTS cbmd_news(
+	"id_news"	INTEGER NOT NULL,"time_now"	TEXT,"date_now"	TEXT,"kind_news"	NUMERIC,
+	"Derection"	TEXT,"Velocity"	TEXT,"Zmax"	INTEGER,"location_zmax"	TEXT,"weather13next"TEXT,"hail"	INTEGER,
+	"time_send"	TEXT,"day_send"	INTEGER,"observer"	INTEGER,"image"	BLOB,
+   "laichau_now"	TEXT,"laichau_13h"	TEXT,
+	"dienbien_now"	TEXT,"dienbien_13h"	TEXT,
+	"sonla_now"	TEXT,"sonla_13h"	TEXT,
+	"hoabinh_now"	TEXT,"hoabinh_13h"	TEXT,
+	"laocai_now"	TEXT,"laocai_13h"	TEXT,
+	"yenbai_now"	TEXT,"yenbai_13h"	TEXT,
+	"name_file"	TEXT, PRIMARY KEY("id_news"))""")
+    mycursor.execute("SELECT MAX(id_news) FROM cbmd_news")
+    id_news=mycursor.fetchone()[0]
+    cbmd_db.commit()
+    cbmd_db.close()
+    if id_news==None:
+      id_news=0
+    return id_news
 ###### Search in database   
 ###### Def for searching news from Database ###
 def check_in_sql(myresult_now,myresult_13h,districts,checkbutton_now,checkbutton_13h): 
@@ -41,17 +63,21 @@ def check_in_sql(myresult_now,myresult_13h,districts,checkbutton_now,checkbutton
          for name_var,chk1,chk2 in zip(districts,checkbutton_13h[:-1],checkbutton_now[:-1]): 
             if name ==name_var:chk1.select(),chk2.configure(state="disabled") 
 def searh():
-   cbmd_db = sqlite3.connect('cbmd_database_2024.db')
+   cbmd_db = sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
    mycursor = cbmd_db.cursor()
-   mycursor.execute("SELECT MAX(id_news) FROM cbmd_2024")
-   id_news=mycursor.fetchone()[0] + 1
+   mycursor.execute("SELECT MAX(id_news) FROM cbmd_news")
+   id_news=mycursor.fetchone()[0]
+   if id_news==None:
+      id_news=1
+   else:
+      id_news=id_news+1
    if searh_ent_var.get()>= id_news:
       messagebox.showerror('Lỗi',"Không có bản tin số " + str(searh_ent_var.get()))
       cbmd_db.close()
    else:
       try:
          clear_button(for_=1)
-         query="SELECT * FROM cbmd_2024 WHERE id_news= ?"
+         query="SELECT * FROM cbmd_news WHERE id_news= ?"
          mycursor.execute(query,(searh_ent_var.get(),))
          myresult = mycursor.fetchone()
          number_news_ent_var.set(myresult[0])
@@ -119,9 +145,9 @@ def save_provinces(all_chk,districts):
             lc="Tất cả"
    return lc
 def saving_database():
-   cbmd_db=sqlite3.connect("cbmd_database_2024.db")
+   cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
    mycursor=cbmd_db.cursor()
-   query='''INSERT INTO cbmd_2024 (id_news,time_now,date_now,kind_news,Derection,Velocity,Zmax,location_zmax,
+   query='''INSERT INTO cbmd_news (id_news,time_now,date_now,kind_news,Derection,Velocity,Zmax,location_zmax,
                                         weather13next,hail,time_send,day_send,observer,image,laichau_now,laichau_13h,
                                         dienbien_now,dienbien_13h,sonla_now,sonla_13h,hoabinh_now,hoabinh_13h,
                                         laocai_now,laocai_13h,yenbai_now,yenbai_13h,name_file) 
@@ -144,52 +170,54 @@ def saving_database():
    cbmd_db.commit()
    cbmd_db.close()
    
-
 ####Def for get path file news from database##
 #Hàm để lấy link của file_name đã lưu sử dụng trong việc xóa file cũ thay fiel mới
 def get_linkfile_database():
-   cbmd_db=sqlite3.connect("cbmd_database_2024.db")
+   cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
    mycursor = cbmd_db.cursor()
-   query="SELECT name_file FROM cbmd_2024 WHERE id_news= ?"
+   query="SELECT name_file FROM cbmd_news WHERE id_news= ?"
    mycursor.execute(query,(number_news_ent_var.get(),))
    link_news = mycursor.fetchone()[0]
    cbmd_db.close()
    return link_news
 
 #### Def for update in database #####
-def update_database(for_=0):
-   try:
-      old_file_path=get_linkfile_database()
-      os.remove(old_file_path)
-      save_file()
-   except:
-      save_file()
-   cbmd_db=sqlite3.connect("cbmd_database_2024.db")
-   mycursor = cbmd_db.cursor()
-   query='''UPDATE cbmd_2024 SET time_now = ?,date_now = ?,kind_news = ?,Derection = ?,Velocity = ?,Zmax = ?,location_zmax = ?,
-               weather13next = ?,hail = ?,time_send = ?,day_send = ?,observer = ?,image = ?,laichau_now = ?,laichau_13h = ?,
-               dienbien_now = ?,dienbien_13h = ?,sonla_now = ?,sonla_13h = ?,hoabinh_now = ?,hoabinh_13h = ?,
-               laocai_now = ?,laocai_13h = ?,yenbai_now = ?,yenbai_13h = ?, name_file= ? WHERE id_news= ? 
-           '''
-   val=(h_weather_now_var.get()+":"+m_weather_now_var.get(),
-         date_now_ent_var.get(),kind_news_cbb.get(),direc_cbb.get(),velo_cbb.get(),
-         zmax_spin_var.get(),', '.join([province_names[i] for i, chk in enumerate(chks_max) if chk.get()]),
-         charac_pre.get(),hail_var.get(),h_time_send_var.get()+":"+m_time_send_var.get(),
-         day_time_send_var.get(),person_send_var.get(),byte_string(resource_path("radar_images\\"+str(number_news_ent_var.get())+".png")),
-         save_provinces(chks_lc,pr.province_districts["Lai Châu"]),save_provinces(chks_lc_13h,pr.province_districts["Lai Châu"]),
-         save_provinces(chks_db,pr.province_districts["Điện Biên"]),save_provinces(chks_db_13h,pr.province_districts["Điện Biên"]),
-         save_provinces(chks_sl,pr.province_districts["Sơn La"]),save_provinces(chks_sl_13h,pr.province_districts["Sơn La"]),
-         save_provinces(chks_hb,pr.province_districts["Hòa Bình"]),save_provinces(chks_hb_13h,pr.province_districts["Hòa Bình"]),
-         save_provinces(chks_lcai,pr.province_districts["Lào Cai"]),save_provinces(chks_lcai_13h,pr.province_districts["Lào Cai"]),
-         save_provinces(chks_yb,pr.province_districts["Yên Bái"]),save_provinces(chks_yb_13h,pr.province_districts["Yên Bái"]),path_file_news,
-         number_news_ent_var.get()
-        )
-   mycursor.execute(query,val)
-   cbmd_db.commit()
-   cbmd_db.close()
-   if for_==1:
-      clear_button()
-      messagebox.showinfo("Cập nhật","Cập nhật thành công")
+def update_database(for_=0): #for_=0 cho gửi lại tin, for_=1 cho update button
+   if len([f for f in glob.glob(os.path.join(resource_path("news/"), "*")) if os.path.isfile(f)])==0:
+      messagebox.showerror("Lỗi","Chưa lưu tin")
+   else:
+      try:
+         old_file_path=get_linkfile_database()
+         os.remove(old_file_path)
+         save_file()
+      except:
+         save_file()
+      cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
+      mycursor = cbmd_db.cursor()
+      query='''UPDATE cbmd_news SET time_now = ?,date_now = ?,kind_news = ?,Derection = ?,Velocity = ?,Zmax = ?,location_zmax = ?,
+                  weather13next = ?,hail = ?,time_send = ?,day_send = ?,observer = ?,image = ?,laichau_now = ?,laichau_13h = ?,
+                  dienbien_now = ?,dienbien_13h = ?,sonla_now = ?,sonla_13h = ?,hoabinh_now = ?,hoabinh_13h = ?,
+                  laocai_now = ?,laocai_13h = ?,yenbai_now = ?,yenbai_13h = ?, name_file= ? WHERE id_news= ? 
+            '''
+      val=(h_weather_now_var.get()+":"+m_weather_now_var.get(),
+            date_now_ent_var.get(),kind_news_cbb.get(),direc_cbb.get(),velo_cbb.get(),
+            zmax_spin_var.get(),', '.join([province_names[i] for i, chk in enumerate(chks_max) if chk.get()]),
+            charac_pre.get(),hail_var.get(),h_time_send_var.get()+":"+m_time_send_var.get(),
+            day_time_send_var.get(),person_send_var.get(),byte_string(resource_path("radar_images\\"+str(number_news_ent_var.get())+".png")),
+            save_provinces(chks_lc,pr.province_districts["Lai Châu"]),save_provinces(chks_lc_13h,pr.province_districts["Lai Châu"]),
+            save_provinces(chks_db,pr.province_districts["Điện Biên"]),save_provinces(chks_db_13h,pr.province_districts["Điện Biên"]),
+            save_provinces(chks_sl,pr.province_districts["Sơn La"]),save_provinces(chks_sl_13h,pr.province_districts["Sơn La"]),
+            save_provinces(chks_hb,pr.province_districts["Hòa Bình"]),save_provinces(chks_hb_13h,pr.province_districts["Hòa Bình"]),
+            save_provinces(chks_lcai,pr.province_districts["Lào Cai"]),save_provinces(chks_lcai_13h,pr.province_districts["Lào Cai"]),
+            save_provinces(chks_yb,pr.province_districts["Yên Bái"]),save_provinces(chks_yb_13h,pr.province_districts["Yên Bái"]),path_file_news,
+            number_news_ent_var.get()
+         )
+      mycursor.execute(query,val)
+      cbmd_db.commit()
+      cbmd_db.close()
+      if for_==1:
+         clear_button()
+         messagebox.showinfo("Cập nhật","Cập nhật thành công")
 ####Def for update checkbutton location of ZMax for 2 location
 def update_max_checkbuttons():
     checked_count = sum(var.get() for var in chks_max)
@@ -200,16 +228,6 @@ def update_max_checkbuttons():
     else:
         for checkbox in checkboxes_max:
             checkbox.config(state=tk.NORMAL)  
-
-#### Def for get lastest id_news
-def lastest_idnews():
-    cbmd_db=sqlite3.connect("cbmd_database_2024.db")
-    mycursor = cbmd_db.cursor()
-    mycursor.execute("SELECT MAX(id_news) FROM cbmd_2024")
-    id_news=mycursor.fetchone()[0]
-    cbmd_db.close()
-    return id_news
-  
 ##Def for change lastesr news from fill new_entry_var ######
 def update_label_img(event):
     try:
@@ -287,9 +305,9 @@ def my_upd(*args):
 
 def person_idnews():
    ######## Def to update for require must save ######
-   cbmd_db=sqlite3.connect("cbmd_database_2024.db")
+   cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
    mycursor = cbmd_db.cursor()
-   mycursor.execute("SELECT name_login FROM login_2024 ORDER BY date_login DESC LIMIT 1")
+   mycursor.execute("SELECT name_login FROM cbmd_login ORDER BY date_login DESC LIMIT 1")
    observer=mycursor.fetchone()[0]
    #number_news_ent_var.set(id_news)
    cbmd_db.close()
@@ -545,7 +563,7 @@ def send_mail_button(ed_send):
       #Chọn tới các địa chỉ: 0=các địa chỉ; 1= trưởng trạm
       if ed_send==0: #Tới các địa chỉ
          dict2=dict_update()
-         if dict1 == dict2:
+         if dict1 == dict2 and len([f for f in glob.glob(os.path.join(resource_path("news/"), "*")) if os.path.isfile(f)])!=0:
             lastest_id=lastest_idnews()
             if number_news_ent_var.get() > lastest_id:
                send_mail(", ".join(content_list[:]),update_progress)
@@ -606,6 +624,7 @@ window.iconphoto(False,icon_image)
 def disable_event():
    pass
 #window.protocol("WM_DELETE_WINDOW", disable_event)
+
 #### VARS #####
 searh_ent_var=tk.IntVar(value="")
 number_news_ent_var=tk.IntVar()
@@ -840,6 +859,7 @@ progress_window.title("Gửi mail ...")
 progress_window.geometry("300x80+640+350")
 progress_window.resizable(False,False)
 progress_window.withdraw()
+progress_window.overrideredirect(1)
 progress_window.iconphoto(False,icon_image)
 progress_bar = Progressbar(progress_window, orient=tk.HORIZONTAL, length=200, mode='determinate')
 progress_bar.pack(pady=(20,5))
