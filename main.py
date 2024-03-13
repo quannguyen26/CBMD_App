@@ -72,7 +72,7 @@ def searh():
    else:
       id_news=id_news+1
    if searh_ent_var.get()>= id_news:
-      messagebox.showerror('Lỗi',"Không có bản tin số " + str(searh_ent_var.get()))
+      messagebox.showerror('Lỗi',f'Không có bản tin số {str(searh_ent_var.get())}')
       cbmd_db.close()
    else:
       try:
@@ -100,12 +100,12 @@ def searh():
          person_send_var.set(myresult[12])
          binary_data = myresult[13]
          img = Image.open(io.BytesIO(binary_data))
-         img.save(resource_path("radar_images\\"+str(myresult[0])+".png"))
+         img.save(resource_path(f'radar_images\\{str(myresult[0])}.png'))
          img=img.resize((520,460))
          img=ImageTk.PhotoImage(img)
          image_label.configure(image=img)
          image_label.image=img
-         link_pic.insert(0,"radar_images\\"+str(myresult[0])+".png")
+         link_pic.insert(0,resource_path(f'radar_images\\{str(myresult[0])}.png'))
          check_in_sql(myresult[14],myresult[15],pr.province_districts["Lai Châu"],checkbutton_lc_now,checkbutton_lc_13h)
          check_in_sql(myresult[16],myresult[17],pr.province_districts["Điện Biên"],checkbutton_db_now,checkbutton_db_13h)
          check_in_sql(myresult[18],myresult[19],pr.province_districts["Sơn La"],checkbutton_sl_now,checkbutton_sl_13h)
@@ -127,7 +127,7 @@ def searh():
             send_all["state"]="normal"
             save_news["state"]="normal"
       except:
-         messagebox.showerror('Lỗi',"Không có bản tin số " + str(searh_ent_var.get()))
+         messagebox.showerror('Lỗi',f'Không có bản tin số {str(searh_ent_var.get())}')
          cbmd_db.close()
 
 #### Def for save information in database #######      
@@ -164,8 +164,7 @@ def saving_database():
           save_provinces(chks_hb,pr.province_districts["Hòa Bình"]),save_provinces(chks_hb_13h,pr.province_districts["Hòa Bình"]),
           save_provinces(chks_lcai,pr.province_districts["Lào Cai"]),save_provinces(chks_lcai_13h,pr.province_districts["Lào Cai"]),
           save_provinces(chks_yb,pr.province_districts["Yên Bái"]),save_provinces(chks_yb_13h,pr.province_districts["Yên Bái"]),
-          path_file_news
-         )
+          path_file_news)
    mycursor.execute(query,val)
    cbmd_db.commit()
    cbmd_db.close()
@@ -210,8 +209,7 @@ def update_database(for_=0): #for_=0 cho gửi lại tin, for_=1 cho update butt
             save_provinces(chks_hb,pr.province_districts["Hòa Bình"]),save_provinces(chks_hb_13h,pr.province_districts["Hòa Bình"]),
             save_provinces(chks_lcai,pr.province_districts["Lào Cai"]),save_provinces(chks_lcai_13h,pr.province_districts["Lào Cai"]),
             save_provinces(chks_yb,pr.province_districts["Yên Bái"]),save_provinces(chks_yb_13h,pr.province_districts["Yên Bái"]),path_file_news,
-            number_news_ent_var.get()
-         )
+            number_news_ent_var.get())
       mycursor.execute(query,val)
       cbmd_db.commit()
       cbmd_db.close()
@@ -402,7 +400,7 @@ def saving_news():
                title_file="DONG"
             else:
                title_file="MLDR"
-            name_file="PDIN_"+title_file+"_"+day_time_send_var.get()[6:10]+day_time_send_var.get()[3:5]+day_time_send_var.get()[0:2]+"_"+h_time_send.get()+"h"+m_time_send.get()+".docx"
+            name_file=f'PDIN_{title_file}_{day_time_send_var.get()[6:10]}{day_time_send_var.get()[3:5]}{day_time_send_var.get()[0:2]}_{h_time_send.get()}h{m_time_send.get()}.docx'
             file_path="news\\"+name_file
             try:
                update = dict_update()
@@ -449,8 +447,9 @@ def clear_button(for_=0):
       image_label.config(image='')
       link_pic=["capture.png"]
       name_file=""
-      dict1 = {'id_news':0,'now_date':'','kind_news':'','h_wea_now':'','m_wea_now':'','zmax': 0,'loca_max':'', 'velocity':'', 'direc':'',
-            'mc1':'','mc2':'','charac_pre':'','hail':0,'send_date':'','h_send':'','m_send':'','per_send':'','m_wea_now':''}
+      dict1 = {'id_news':0,'now_date':'','kind_news':'','h_wea_now':'','m_wea_now':'','zmax': 0,'loca_max':'', 'velocity':'', 
+               'direc':'','mc1':'','mc2':'','charac_pre':'','hail':0,'send_date':'','h_send':'','m_send':'','per_send':'',
+               'm_wea_now':''}
       update_news["state"]="normal"
       send_ttram["state"]="normal"
       send_all["state"]="normal"
@@ -513,13 +512,19 @@ def open_anydesk():
 
 ###### Def to Send gmail to adresses ######
 def send_mail_button(ed_send):
-   def send_mail(email_string,progress_callback):
+   def send_mail(email_string,progress_callback,subject_mail):
       pswd = "kyvofwfivxxltzuu" 
       email_from = "radaphadintaybac@gmail.com"
       msg = MIMEMultipart()
       msg['From'] = utils.formataddr(('Ra đa Pha Đin', email_from))
       msg['To'] = email_string
-      subject=day_time_send_var.get()[0:2]+"."+day_time_send_var.get()[3:5]+"."+day_time_send_var.get()[6:10]+"- "+"Bản tin cảnh báo mưa dông.RDPD -"+ number_news_ent.get()
+      progress_callback(5)
+      if subject_mail=="gui_duyet":
+         subject=f'Bản tin - {number_news_ent.get()}' 
+      elif subject_mail=="phat_tin": 
+         subject=f'{day_time_send_var.get()[0:2]}.{day_time_send_var.get()[3:5]}.{day_time_send_var.get()[6:10]} - Bản tin cảnh báo mưa dông.RDPD -{number_news_ent.get()}'
+      elif subject_mail=="phat_lai":
+         subject=f'{day_time_send_var.get()[0:2]}.{day_time_send_var.get()[3:5]}.{day_time_send_var.get()[6:10]} - Bản tin cảnh báo mưa dông.RDPD -{number_news_ent.get()}.(Phát lại)'
       msg['Subject'] = subject
       html = '''<p><i>**************<br>
       Trạm Ra đa thời tiết Pha Đin<br>
@@ -566,24 +571,23 @@ def send_mail_button(ed_send):
          if dict1 == dict2 and len([f for f in glob.glob(os.path.join(resource_path("news/"), "*")) if os.path.isfile(f)])!=0:
             lastest_id=lastest_idnews()
             if number_news_ent_var.get() > lastest_id:
-               send_mail(", ".join(content_list[:]),update_progress)
-               print("Gửi tới các địa chỉ")
+               send_mail(", ".join(content_list[:]),update_progress,"phat_tin")
                save_file()
                saving_database()
-               clear_button()
             else:
                ask_update=messagebox.askokcancel("Thông báo !","Bản tin này đã từng được gửi, bạn có muốn gửi lại?")
                if ask_update:
-                  send_mail(", ".join(content_list[:]),update_progress)
-                  print("Gửi tới các địa chỉ")
+                  send_mail(", ".join(content_list[:]),update_progress,"phat_lai")
                   update_database()
-                  clear_button()          
+            print("Gửi tới các địa chỉ")
+            clear_button()          
          else:
             messagebox.showerror("Lỗi","Chưa lưu bản tin")
       elif ed_send==1: #tới trưởng trạm
          dict2=dict_update()
          if dict1 == dict2:
-            Thread(target=send_mail,args=(content_list[0],update_progress),daemon=True).start()
+            send_1=Thread(target=send_mail,args=(content_list[-1],update_progress,"gui_duyet"))
+            send_1.start()
             print("Gửi tới trưởng trạm")
          else:
             messagebox.showerror("Lỗi","Chưa lưu bản tin")
@@ -638,7 +642,6 @@ zmax_spin_var=tk.IntVar()
 chks_max = [tk.BooleanVar() for i in province_names] #var for zmax
 for var in chks_max:
     var.trace('w', lambda *args: update_max_checkbuttons())
-
 hail_var=tk.IntVar()
 person_send_var=tk.StringVar()
 ##All var for provinces
@@ -658,7 +661,8 @@ all_chks_now=[chks_lc,chks_db,chks_sl,chks_hb,chks_lcai,chks_yb]
 all_chks_13h=[chks_lc_13h,chks_db_13h,chks_sl_13h,chks_hb_13h,chks_lcai_13h,chks_yb_13h]
 ###########
 
-tk.Label(window, text='BẢN TIN CẢNH BÁO MƯA DÔNG TRÊN KHU VỰC MIỀN NÚI PHÍA BẮC',bg="skyblue",font=("Times New Roman",18)).pack(fill="x",pady=(5,25))
+tk.Label(window, text='BẢN TIN CẢNH BÁO MƯA DÔNG TRÊN KHU VỰC MIỀN NÚI PHÍA BẮC',
+         bg="skyblue",font=("Times New Roman",18)).pack(fill="x",pady=(5,25))
 searh_ent_var=tk.IntVar(value="")
 searh_ent=tk.Entry(window,textvariable=searh_ent_var,width=15,font=("Times New Roman",16))
 searh_ent.place(x=870,y=38)
@@ -713,7 +717,8 @@ zmax_spin.grid(row=0,column=5)
 tk.Label(info_wea_now,text="Hướng dịch chuyển:").grid(row=0,column=6, padx=(10,0))
 direc_cbb=Combobox(info_wea_now,values=["Bắc","Bắc Đông Bắc","Đông Bắc","Đông Đông Bắc","Đông",
                                         "Đông Đông Nam","Đông Nam","Nam Đông Nam","Nam","Nam Tây Nam",
-                                        "Tây Nam","Tây Tây Nam","Tây","Tây Tây Bắc", "Tây Bắc","Bắc Tây Bắc"],width=15,state="readonly")
+                                        "Tây Nam","Tây Tây Nam","Tây","Tây Tây Bắc", "Tây Bắc","Bắc Tây Bắc"],
+                                        width=15,state="readonly")
 direc_cbb.grid(row=0,column=7)
 
 #Velocity
@@ -777,7 +782,8 @@ lcai_frame_now=tk.LabelFrame(provivce_wea_now,text=name_lcai)
 lcai_frame_now.grid(row=4,column=0,pady=(0,5),sticky="w")
 lcai_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_lcai + " từ 1-3 giờ tới")
 lcai_frame_13h.grid(row=4,column=1,pady=(0,5),sticky="w")
-checkbutton_lcai_now, checkbutton_lcai_13h=pr.odd_check_buttons(name_lcai,lcai_frame_now,lcai_frame_13h,chks_lcai,chks_lcai_13h,1,10.5)
+checkbutton_lcai_now, checkbutton_lcai_13h=pr.odd_check_buttons(name_lcai,lcai_frame_now,lcai_frame_13h,chks_lcai,
+                                                                chks_lcai_13h,1,10.5)
 #Yen_Bai
 ybai_frame_now=tk.LabelFrame(provivce_wea_now,text=name_ybai)
 ybai_frame_now.grid(row=5,column=0,pady=(0,5),sticky="w")
@@ -797,9 +803,11 @@ image_label=tk.Label(image_frame)
 image_label.grid(row=0,column=0,sticky="n",columnspan=3) 
 open_web_but=tk.Button(image_frame,text="Mở Web",bg='lightblue',cursor='hand2',command=open_web)
 open_web_but.grid(row=1,column=0,ipadx=10,ipady=5,sticky="")
-open_anydesk_but=tk.Button(image_frame,text="AnyDesk",bg='lightblue',cursor='hand2',command=lambda:Thread(target=open_anydesk).start())
+open_anydesk_but=tk.Button(image_frame,text="AnyDesk",bg='lightblue',cursor='hand2',
+                           command=lambda:Thread(target=open_anydesk,daemon=True).start())
 open_anydesk_but.grid(row=1,column=1,pady=5,ipadx=10,ipady=5,sticky="")
-sniping_but=tk.Button(image_frame,text="Cắt ảnh",bg='lightblue',command=sniping_image,cursor='hand2')
+sniping_but=tk.Button(image_frame,text="Cắt ảnh",bg='lightblue',cursor='hand2',
+                           command=lambda:Thread(target=sniping_image).start())
 sniping_but.grid(row=1,column=2,ipadx=10,ipady=5,sticky="")
 #Save frame
 save_frame=tk.Frame(image_save_frame,highlightbackground="black", highlightthickness=1)
@@ -858,8 +866,8 @@ progress_window = tk.Toplevel(window)
 progress_window.title("Gửi mail ...")
 progress_window.geometry("300x80+640+350")
 progress_window.resizable(False,False)
+#progress_window.protocol("WM_DELETE_WINDOW", disable_event)
 progress_window.withdraw()
-progress_window.overrideredirect(1)
 progress_window.iconphoto(False,icon_image)
 progress_bar = Progressbar(progress_window, orient=tk.HORIZONTAL, length=200, mode='determinate')
 progress_bar.pack(pady=(20,5))

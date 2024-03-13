@@ -35,7 +35,7 @@ class MyWidget(QtWidgets.QWidget):
 
     def paintEvent(self, event):
         qp = QtGui.QPainter(self)
-        qp.setPen(QtGui.QPen(QtGui.QColor('red'), 3))
+        qp.setPen(QtGui.QPen(QtGui.QColor('red'), 2))
         qp.setBrush(QtGui.QColor(128, 128, 255, 128))
         qp.drawRect(QtCore.QRect(self.begin, self.end))
 

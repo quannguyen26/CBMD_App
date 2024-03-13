@@ -1,10 +1,22 @@
-import sqlite3
-from datetime import datetime
-cbmd_db=sqlite3.connect(f'database/cbmd_database_{datetime.now().strftime("%d/%m/%Y")[6:10]}.db')
-mycursor = cbmd_db.cursor()
-mycursor.execute("SELECT MAX(id_news) FROM cbmd_news")
-observer=mycursor.fetchone()[0]
-#number_news_ent_var.set(id_news)
-cbmd_db.close()
-print(observer)
-cbmd_db.close()
+import threading
+import time
+
+def worker():
+    """Thread worker function"""
+    print('Worker is starting')
+    time.sleep(2)  # Giả sử công việc mất 2 giây
+    print('Worker is finished')
+
+# Tạo một thread mới để chạy hàm worker
+t = threading.Thread(target=worker)
+
+# Khởi động thread
+t.start()
+
+# Đợi cho đến khi thread t hoàn thành
+t.join()
+
+print('Main Thread: Waiting for the worker thread to complete.')
+
+# Khi t.join() hoàn thành, chương trình chính sẽ tiếp tục thực thi
+print('Main Thread: All done.')

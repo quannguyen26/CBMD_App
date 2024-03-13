@@ -1,47 +1,13 @@
-#Mail trưởng trạm:
+#####----------Mail các địa chỉ nhận------------########
+#vulongkttv@gmail.com, themeteo@gmail.com, vumanhcuong0474@gmail.com, thangqlvb@gmail.com, hongnhatkttv@gmail.com
+#nguyentaybac@gmail.com, daoduc.thuy@gmail.com, phongdubaokttv@gmail.com, kttvlaichau@gmail.com, vancuong.phan@gmail.com 
+#vuquanlydubao@gmail.com, khituongrada@gmail.com, canhbaomuadong@gmail.com, hoadbkt@gmail.com, daikttv.hoabinh@gmail.com, daitinhdienbien@gmail.com
+#thuynguyen123@gmail.com, dinhvan1966@gmail.com, vumanhhai1972@gmail.com, kttvvb@gmail.com, hungkttvyb@gmail.com, kttvyenbai@gmail.com 
+#dinhquanghanh123@gmail.com, kttvlaocai@gmail.com, radaviettri2013@gmail.com, vuqldb.vietbac@gmail.com, vu.quanthuy@gmail.com, yenkthb@gmail.com 
+#phongdubaodbbb1@gmail.com, daikhituongtvbg@gmail.com, bacninh@kttvdb.net, kttvhanam@gmail.com, ttkttvhd@gmail.com
+#DaiKTTVHaiphong@gmail.com, trungtamkttvhy@gmail.com, daikttvnamdinh@gmail.com, dbnbinh@gmail.com 
+#quangninh@kttvdb.net, kttvqn@gmail.com, ttkttvthaibinh@gmail.com, kttvtn@gmail.com, daikttvvinhphuc@gmail.com 
+nguyenquan.flc@gmail.com
+###-----------Mail trưởng trạm---------############
 #tuanpmdtb@gmail.com
 mr.nguyenkhacquan@gmail.com
-#Mail các địa chỉ nhận:
-nguyenquan.flc@gmail.com
-#vulongkttv@gmail.com
-#themeteo@gmail.com
-#vumanhcuong0474@gmail.com
-#thangqlvb@gmail.com
-#hongnhatkttv@gmail.com
-#nguyentaybac@gmail.com
-#daoduc.thuy@gmail.com
-#phongdubaokttv@gmail.com
-#kttvlaichau@gmail.com
-#vancuong.phan@gmail.com
-#vuquanlydubao@gmail.com
-#khituongrada@gmail.com
-#canhbaomuadong@gmail.com
-#hoadbkt@gmail.com
-#daikttv.hoabinh@gmail.com
-#daitinhdienbien@gmail.com
-#thuynguyen123@gmail.com
-#dinhvan1966@gmail.com
-#vumanhhai1972@gmail.com
-#kttvvb@gmail.com
-#hungkttvyb@gmail.com
-#kttvyenbai@gmail.com
-#dinhquanghanh123@gmail.com
-#kttvlaocai@gmail.com
-#radaviettri2013@gmail.com
-#vuqldb.vietbac@gmail.com
-#vu.quanthuy@gmail.com
-#yenkthb@gmail.com
-#phongdubaodbbb1@gmail.com
-#daikhituongtvbg@gmail.com
-#bacninh@kttvdb.net
-#kttvhanam@gmail.com
-#ttkttvhd@gmail.com
-#DaiKTTVHaiphong@gmail.com
-#trungtamkttvhy@gmail.com
-#daikttvnamdinh@gmail.com
-#dbnbinh@gmail.com
-#quangninh@kttvdb.net
-#kttvqn@gmail.com
-#ttkttvthaibinh@gmail.com
-#kttvtn@gmail.com
-#daikttvvinhphuc@gmail.com
