@@ -5,7 +5,7 @@ from tkinter.ttk import Combobox
 from tkinter.ttk import Progressbar
 from tkinter import messagebox
 from PIL import Image,ImageTk
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import glob
 import io
@@ -180,41 +180,56 @@ def get_linkfile_database():
    cbmd_db.close()
    return link_news
 
-#### Def for update in database #####
-def update_database(for_=0): #for_=0 cho gửi lại tin, for_=1 cho update button
+####  #####
+def update_database(for_=0): 
+   '''
+   Def for update in database
+   :for_=0: cho gửi lại tin
+   :for_=1: cho update button
+   '''
    if len([f for f in glob.glob(os.path.join(resource_path("news/"), "*")) if os.path.isfile(f)])==0:
       messagebox.showerror("Lỗi","Chưa lưu tin")
    else:
-      try:
-         old_file_path=get_linkfile_database()
-         os.remove(old_file_path)
+      conn = sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
+      cursor = conn.cursor()
+      cursor.execute("SELECT COUNT(*) FROM cbmd_news WHERE id_news = ?", (number_news_ent_var.get(),))
+      ket_qua = cursor.fetchone()
+      conn.close()
+      if ket_qua[0] > 0:
+         try:
+            old_file_path=get_linkfile_database()
+            os.remove(old_file_path)
+            save_file()
+         except:
+            save_file()
+         cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
+         mycursor = cbmd_db.cursor()
+         query='''UPDATE cbmd_news SET time_now = ?,date_now = ?,kind_news = ?,Derection = ?,Velocity = ?,Zmax = ?,location_zmax = ?,
+                     weather13next = ?,hail = ?,time_send = ?,day_send = ?,observer = ?,image = ?,laichau_now = ?,laichau_13h = ?,
+                     dienbien_now = ?,dienbien_13h = ?,sonla_now = ?,sonla_13h = ?,hoabinh_now = ?,hoabinh_13h = ?,
+                     laocai_now = ?,laocai_13h = ?,yenbai_now = ?,yenbai_13h = ?, name_file= ? WHERE id_news= ? 
+               '''
+         val=(h_weather_now_var.get()+":"+m_weather_now_var.get(),
+               date_now_ent_var.get(),kind_news_cbb.get(),direc_cbb.get(),velo_cbb.get(),
+               zmax_spin_var.get(),', '.join([province_names[i] for i, chk in enumerate(chks_max) if chk.get()]),
+               charac_pre.get(),hail_var.get(),h_time_send_var.get()+":"+m_time_send_var.get(),
+               day_time_send_var.get(),person_send_var.get(),byte_string(resource_path("radar_images\\"+str(number_news_ent_var.get())+".png")),
+               save_provinces(chks_lc,pr.province_districts["Lai Châu"]),save_provinces(chks_lc_13h,pr.province_districts["Lai Châu"]),
+               save_provinces(chks_db,pr.province_districts["Điện Biên"]),save_provinces(chks_db_13h,pr.province_districts["Điện Biên"]),
+               save_provinces(chks_sl,pr.province_districts["Sơn La"]),save_provinces(chks_sl_13h,pr.province_districts["Sơn La"]),
+               save_provinces(chks_hb,pr.province_districts["Hòa Bình"]),save_provinces(chks_hb_13h,pr.province_districts["Hòa Bình"]),
+               save_provinces(chks_lcai,pr.province_districts["Lào Cai"]),save_provinces(chks_lcai_13h,pr.province_districts["Lào Cai"]),
+               save_provinces(chks_yb,pr.province_districts["Yên Bái"]),save_provinces(chks_yb_13h,pr.province_districts["Yên Bái"]),path_file_news,
+               number_news_ent_var.get())
+         mycursor.execute(query,val)
+         cbmd_db.commit()
+         cbmd_db.close()
+      else:
          save_file()
-      except:
-         save_file()
-      cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
-      mycursor = cbmd_db.cursor()
-      query='''UPDATE cbmd_news SET time_now = ?,date_now = ?,kind_news = ?,Derection = ?,Velocity = ?,Zmax = ?,location_zmax = ?,
-                  weather13next = ?,hail = ?,time_send = ?,day_send = ?,observer = ?,image = ?,laichau_now = ?,laichau_13h = ?,
-                  dienbien_now = ?,dienbien_13h = ?,sonla_now = ?,sonla_13h = ?,hoabinh_now = ?,hoabinh_13h = ?,
-                  laocai_now = ?,laocai_13h = ?,yenbai_now = ?,yenbai_13h = ?, name_file= ? WHERE id_news= ? 
-            '''
-      val=(h_weather_now_var.get()+":"+m_weather_now_var.get(),
-            date_now_ent_var.get(),kind_news_cbb.get(),direc_cbb.get(),velo_cbb.get(),
-            zmax_spin_var.get(),', '.join([province_names[i] for i, chk in enumerate(chks_max) if chk.get()]),
-            charac_pre.get(),hail_var.get(),h_time_send_var.get()+":"+m_time_send_var.get(),
-            day_time_send_var.get(),person_send_var.get(),byte_string(resource_path("radar_images\\"+str(number_news_ent_var.get())+".png")),
-            save_provinces(chks_lc,pr.province_districts["Lai Châu"]),save_provinces(chks_lc_13h,pr.province_districts["Lai Châu"]),
-            save_provinces(chks_db,pr.province_districts["Điện Biên"]),save_provinces(chks_db_13h,pr.province_districts["Điện Biên"]),
-            save_provinces(chks_sl,pr.province_districts["Sơn La"]),save_provinces(chks_sl_13h,pr.province_districts["Sơn La"]),
-            save_provinces(chks_hb,pr.province_districts["Hòa Bình"]),save_provinces(chks_hb_13h,pr.province_districts["Hòa Bình"]),
-            save_provinces(chks_lcai,pr.province_districts["Lào Cai"]),save_provinces(chks_lcai_13h,pr.province_districts["Lào Cai"]),
-            save_provinces(chks_yb,pr.province_districts["Yên Bái"]),save_provinces(chks_yb_13h,pr.province_districts["Yên Bái"]),path_file_news,
-            number_news_ent_var.get())
-      mycursor.execute(query,val)
-      cbmd_db.commit()
-      cbmd_db.close()
+         saving_database()
+         
+      clear_button()
       if for_==1:
-         clear_button()
          messagebox.showinfo("Cập nhật","Cập nhật thành công")
 ####Def for update checkbutton location of ZMax for 2 location
 def update_max_checkbuttons():
@@ -237,6 +252,13 @@ def update_label_img(event):
             link_pic.insert(0,"capture.png")
             observer=person_idnews()
             person_send1.set(observer)
+            rounded_time,after_15p = custom_round_minutes(datetime.now())
+            date_now_ent_var.set(rounded_time[0:10])
+            h_weather_now_var.set(rounded_time[11:13])
+            m_weather_now_var.set(rounded_time[14:16])
+            day_time_send_var.set(after_15p[0:10])
+            h_time_send_var.set(after_15p[11:13])
+            m_time_send_var.set(after_15p[14:16])
             if observer==person_send_var.get():
                update_news["state"]="normal"
                send_ttram["state"]="normal"
@@ -250,7 +272,7 @@ def update_label_img(event):
         # Xử lý trường hợp nếu giá trị không phải là số
          #messagebox.showerror("Lỗi","Giá trị nhập vào không đúng")
     
-## Def for change betwee now/1_3h weather button ######
+## Def for change bettew now/1_3h weather button ######
 def change_to_now():
    weather_now_frame1.grid(row=1,column=0,sticky="W",pady=(5,0))
    weather_1_3h.grid_forget()
@@ -264,9 +286,10 @@ def change_to_1_3h_next():
 
 ##### Def to get relative_path
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
+    """ 
+    Get absolute path to resource, works for dev and for PyInstaller 
+    """
     try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
     except Exception:
         base_path = os.path.abspath(".")
@@ -274,7 +297,9 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path) 
 
 def sniping_image():
-   ##### Def to snipping images #########
+   ''' 
+   Def to snipping images 
+   '''
    window.withdraw()
    sub=subprocess.Popen(['python' , resource_path('sniping.py')],stdout=subprocess.PIPE)
    sub.wait()
@@ -298,7 +323,9 @@ def sniping_image():
    window.deiconify()
 
 def my_upd(*args):
-    #Funtion to update now date for sending date
+    '''
+    Funtion to update now date for sending date
+    '''
     day_time_send_var.set(date_now_ent_var.get())
 
 def person_idnews():
@@ -310,9 +337,10 @@ def person_idnews():
    #number_news_ent_var.set(id_news)
    cbmd_db.close()
    return observer
-
+######
 def dict_update():
-   ######## Def to update for require must save ######
+   '''Def to update for require must save 
+   '''
    now_update=[]
    to_13h_update=[]
    def append_list_update(all_chks_agument,n):  
@@ -322,19 +350,22 @@ def dict_update():
    append_list_update(all_chks_now,now_update)
    append_list_update(all_chks_13h,to_13h_update)
    dict={'id_news':number_news_ent_var.get(),'now_date':date_now_ent_var.get(),'kind_news':kind_news_cbb.get(),
-                              'h_wea_now':h_weather_now_var.get(),'m_wea_now':m_weather_now_var.get(),
-                              'zmax': zmax_spin_var.get(),'loca_max':[province_names[i] for i, chk in enumerate(chks_max) if chk.get()],
-                              'velocity': velo_cbb.get(),'direc':direc_cbb.get(),
-                              'mc1':now_update,'mc2':to_13h_update,
-                              'charac_pre':charac_pre.get(),'hail':hail_var.get(),'send_date':day_time_send_var.get(),
-                              'h_send':h_time_send_var.get(),'m_send':m_time_send_var.get(),'per_send':person_send_var.get()}
+         'h_wea_now':h_weather_now_var.get(),'m_wea_now':m_weather_now_var.get(),
+         'zmax': zmax_spin_var.get(),'loca_max':[province_names[i] for i, chk in enumerate(chks_max) if chk.get()],
+         'velocity': velo_cbb.get(),'direc':direc_cbb.get(),
+         'mc1':now_update,'mc2':to_13h_update,'charac_pre':charac_pre.get(),'hail':hail_var.get(),
+         'send_date':day_time_send_var.get(),'h_send':h_time_send_var.get(),'m_send':m_time_send_var.get(),
+         'per_send':person_send_var.get()}
    return dict
-######### Def for saving file docx news ############
+######### ############
 def saving_news():
+   '''
+    Def for saving file docx news
+   '''
    global name_file
    searh_ent_var.set("") # make search to blank
-   lst_max = [province_names[i] for i, chk in enumerate(chks_max) if chk.get()]
    #set for Zmax at provinces
+   lst_max = [province_names[i] for i, chk in enumerate(chks_max) if chk.get()]
    #######
    all_1_now=[[],[]]
    all_2_now=[[],[]]
@@ -392,8 +423,7 @@ def saving_news():
                   "dBZ":zmax_spin.get(),"direc":direc_cbb.get(),"velo":velo_cbb.get(),"province_max":', '.join(lst_max),
                   "pic":InlineImage(doc,resource_path(link_pic[0]),width=Mm(110),height=Mm(95)),"dayp":date_now_ent_var.get()[0:2],"monp":date_now_ent_var.get()[3:5],
                   "yearp":date_now_ent_var.get()[6:10],"charac_pre":charac_pre.get(),"hail":hail,"h_send":h_time_send.get(),
-                  "m_send":m_time_send.get(),"person_send":person_send1.get()
-            } 
+                  "m_send":m_time_send.get(),"person_send":person_send1.get()} 
             doc.render(context)
                #name file news
             if kind_news_cbb.get() =="CẢNH BÁO MƯA DÔNG":
@@ -412,17 +442,44 @@ def saving_news():
          else:
             messagebox.showerror("Lỗi","Lỗi vị trí Zmax")
 
-########## Def for clear #################
+##########   #########
+def custom_round_minutes(dt):
+    '''
+    Def to update day/time follow radar time
+    '''
+    quotient, remainder = divmod(dt.minute, 10)
+    rounded_hour=dt.hour
+    if dt.hour==0 and quotient==0 and (remainder==1 or remainder==0):
+        rounded_minute=50
+        rounded_hour=23
+        dt=dt-timedelta(days=1)
+    elif remainder >= 2: 
+        rounded_minute= quotient* 10
+    elif remainder <2 and quotient==0:
+        rounded_hour=rounded_hour-1
+        rounded_minute=50
+    elif remainder == 1:
+        rounded_minute=(quotient-1)*10
+    elif remainder ==0 and quotient>=1:
+        rounded_minute=(quotient-1)*10
+    rounded_time=dt.replace(hour=rounded_hour,minute=rounded_minute)
+    after_15p=rounded_time+ timedelta(minutes=15)
+    return rounded_time.strftime("%d/%m/%Y %H:%M"),after_15p.strftime("%d/%m/%Y %H:%M")
+##########  #################
 def clear_button(for_=0):
+   '''
+   Def for clear informations on app
+   '''
    def clear():
       global dict1,link_pic,name_file
       change_to_now()
+      rounded_time,after_15p = custom_round_minutes(datetime.now())
       kind_news_cbb.set("CẢNH BÁO MƯA DÔNG")
       lastest_id=lastest_idnews()
       number_news_ent_var.set(lastest_id+1)
-      date_now_ent_var.set(datetime.now().strftime("%d/%m/%Y"))
-      h_weather_now_var.set('00')
-      m_weather_now_var.set('00')
+      date_now_ent_var.set(rounded_time[0:10])
+      h_weather_now_var.set(rounded_time[11:13])
+      m_weather_now_var.set(rounded_time[14:16])
       zmax_spin_var.set(40)
       velo_cbb.set('20 – 25')
       direc_cbb.set('')
@@ -439,9 +496,9 @@ def clear_button(for_=0):
          #for chk in for_clear_all_var:chk.set(False)
       charac_pre.set("mưa, mưa rào và dông")
       hail_var.set(0)
-      day_time_send_var.set(datetime.now().strftime("%d/%m/%Y"))
-      h_time_send_var.set('00')
-      m_time_send_var.set('00')
+      day_time_send_var.set(after_15p[0:10])
+      h_time_send_var.set(after_15p[11:13])
+      m_time_send_var.set(after_15p[14:16])
       observer=person_idnews()
       person_send1.set(observer)
       image_label.config(image='')
@@ -467,40 +524,51 @@ def clear_button(for_=0):
    elif for_==1:
       clear()
 
-########### Def to Save file news into folder###########
+########### ###########
 def save_file():
+      '''
+      Def to Save file news into folder
+      '''
       global path_file_news
       dict2=dict_update()
       if name_file=="" or dict1 != dict2:
          messagebox.showerror("Lỗi","Chưa lưu bản tin")
       else:
-         path_folder=resource_path("D:\\CBMD-"+name_file[10:14]+"\\"+name_file[14:16])
+         path_folder=resource_path(f'D:\\CBMD-{name_file[10:14]}\\{name_file[14:16]}')
          if not os.path.exists(path_folder):
             os.makedirs(path_folder)
          shutil.move(resource_path("news\\"+name_file), path_folder)
          path_file_news=resource_path(path_folder+"\\"+name_file)
-#######Def for checking internet connection######
+#############
 def check_internet_connection(host="8.8.8.8", port=53, timeout=3):
+      '''
+      Def for checking internet connection
+      '''
       try:
          socket.setdefaulttimeout(timeout)
          socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
          return True
       except socket.error as ex:
          return False
-########### Def to Open web AMO ###########
+###########
 def open_web():
+   '''
+   Def to Open web AMO
+   '''
    if check_internet_connection():
       url = "http://hymetnet.gov.vn/radar/PHA"
       # getting path 
       chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
       # First registers the new browser 
-      webbrowser.register('chrome', None,  
-                        webbrowser.BackgroundBrowser(chrome_path))  
+      webbrowser.register('chrome', None,webbrowser.BackgroundBrowser(chrome_path))  
       webbrowser.get('chrome').open(url)
    else:
       messagebox.showerror("Lỗi","Không có kết nối Internet")
-########### Def to Open Anydesk ###########
+########### 
 def open_anydesk():
+   '''
+   Def to Open Anydesk app
+   '''
    if check_internet_connection():
       # Đường dẫn đến chương trình AnyDesk.exe
       anydesk_path = r'"C:\Program Files (x86)\AnyDesk\AnyDesk.exe"'
@@ -510,8 +578,12 @@ def open_anydesk():
    else:
       messagebox.showerror("Lỗi","Không có kết nối Internet")
 
-###### Def to Send gmail to adresses ######
+#########
 def send_mail_button(ed_send):
+   '''
+   Def to Send gmail to adresses
+   :ed_send: Địa chỉ gửi mail: 0-Tới các địa chỉ/1-Gửi trưởng trạm
+   '''
    def send_mail(email_string,progress_callback,subject_mail):
       pswd = "kyvofwfivxxltzuu" 
       email_from = "radaphadintaybac@gmail.com"
@@ -559,7 +631,7 @@ def send_mail_button(ed_send):
          messagebox.showerror("Lỗi","Chưa lưu bản tin")
       except Exception as e:
          progress_window.withdraw()
-         print("Đã có lỗi xảy ra:", e)
+         messagebox.showerror("Lỗi","Không gửi được mail")
       
    if check_internet_connection():
       #Read mail edress from dong_tpl\\mail.txt   
@@ -571,30 +643,44 @@ def send_mail_button(ed_send):
          if dict1 == dict2 and len([f for f in glob.glob(os.path.join(resource_path("news/"), "*")) if os.path.isfile(f)])!=0:
             lastest_id=lastest_idnews()
             if number_news_ent_var.get() > lastest_id:
-               send_mail(", ".join(content_list[:]),update_progress,"phat_tin")
-               save_file()
-               saving_database()
+               try:
+                  send_mail(", ".join(content_list[:]),update_progress,"phat_tin")
+               except:
+                  pass
+               else:
+                  save_file()
+                  saving_database()
+                  print("Gửi tới các địa chỉ")
+                  clear_button()
             else:
                ask_update=messagebox.askokcancel("Thông báo !","Bản tin này đã từng được gửi, bạn có muốn gửi lại?")
                if ask_update:
-                  send_mail(", ".join(content_list[:]),update_progress,"phat_lai")
-                  update_database()
-            print("Gửi tới các địa chỉ")
-            clear_button()          
+                  try:
+                     send_mail(", ".join(content_list[:]),update_progress,"phat_lai")
+                  except:
+                     pass
+                  else:
+                     update_database()
+                     print("Gửi tới các địa chỉ")    
          else:
             messagebox.showerror("Lỗi","Chưa lưu bản tin")
       elif ed_send==1: #tới trưởng trạm
          dict2=dict_update()
          if dict1 == dict2:
-            send_1=Thread(target=send_mail,args=(content_list[-1],update_progress,"gui_duyet"))
-            send_1.start()
+           try:
+            send_mail(content_list[-1],update_progress,"gui_duyet")
             print("Gửi tới trưởng trạm")
+           except:
+              pass
          else:
             messagebox.showerror("Lỗi","Chưa lưu bản tin")
    else:
       messagebox.showerror("Lỗi","Không có kết nối Internet")
-######### Def to uptade for % for progressbar
+#########
 def update_progress(progress):
+    '''
+    Def to uptade % for progressbar
+    '''
     progress_window.deiconify()
     progress_bar['value'] = 0  # Khởi tạo lại giá trị progressbar
     progress_label.config(text="0%")
@@ -603,8 +689,11 @@ def update_progress(progress):
     progress_window.update_idletasks()
     if progress >= 100:
         progress_window.after(100, progress_window.withdraw)  
-########## Def to logout, back to login
+########## 
 def logout():
+   '''
+   Def to logout app and back to login screen
+   '''
    window.destroy()
    subprocess.Popen(['python' , 'login.py'],stdout=subprocess.PIPE)
 #---------------------------------------------------------------------------------
@@ -683,7 +772,7 @@ number_news_ent.bind("<KeyRelease>", update_label_img)
 tk.Label(information_frame1,text="Ngày:").grid(row=0,column=2, padx=(40,0))
 date_now_ent=DateEntry(information_frame1,selectmode='day',date_pattern="dd/mm/yyyy",locale='vi',textvariable=date_now_ent_var)
 date_now_ent.grid(row=0,column=3)
-
+date_now_ent.configure(state="readonly")
 tk.Label(information_frame1,text="Loại bản tin: ").grid(row=0,column=4, padx=(40,0))
 kind_news_cbb=Combobox(information_frame1,width=32,values=['CẢNH BÁO MƯA DÔNG','CẢNH BÁO MƯA DÔNG DIỆN RỘNG'],state="readonly")
 kind_news_cbb.set('CẢNH BÁO MƯA DÔNG')
@@ -756,38 +845,38 @@ provivce_wea_1_3h.grid(row=1,column=0,pady=5,padx=(54,54))
 #Lai_Chau
 lchau_frame_now=tk.LabelFrame(provivce_wea_now,text=name_lchau)
 lchau_frame_now.grid(row=0,column=0,pady=(0,5),sticky="w")
-lchau_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_lchau + " từ 1-3 giờ tới")
+lchau_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=f'{name_lchau} từ 1-3 giờ tới')
 lchau_frame_13h.grid(row=0,column=1,pady=(0,5),sticky='w')
 checkbutton_lc_now,checkbutton_lc_13h=pr.even_check_buttons(name_lchau,lchau_frame_now,lchau_frame_13h,chks_lc,chks_lc_13h,2,10)
 #Dien_Bien
 dbien_frame_now=tk.LabelFrame(provivce_wea_now,text=name_dbien)
 dbien_frame_now.grid(row=1,column=0,pady=(0,5),sticky="w")
-dbien_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_dbien + " từ 1-3 giờ tới")
+dbien_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=f'{name_dbien} từ 1-3 giờ tới')
 dbien_frame_13h.grid(row=1,column=1,pady=(0,5),sticky="w")
 checkbutton_db_now, checkbutton_db_13h=pr.odd_check_buttons(name_dbien,dbien_frame_now,dbien_frame_13h,chks_db,chks_db_13h,2,0)
 #Son_La
 sla_frame_now=tk.LabelFrame(provivce_wea_now,text=name_sla)
 sla_frame_now.grid(row=2,column=0,pady=(0,5),sticky="w")
-sla_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_sla + " từ 1-3 giờ tới")
+sla_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=f'{name_sla} từ 1-3 giờ tới')
 sla_frame_13h.grid(row=2,column=1,pady=(0,5),sticky="w")
 checkbutton_sl_now, checkbutton_sl_13h=pr.even_check_buttons(name_sla,sla_frame_now,sla_frame_13h,chks_sl,chks_sl_13h,3,9.5)
 #Hoa_Binh
 hb_frame_now=tk.LabelFrame(provivce_wea_now,text=name_hbinh)
 hb_frame_now.grid(row=3,column=0,pady=(0,5),sticky="w")
-hb_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_hbinh + " từ 1-3 giờ tới")
+hb_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=f'{name_hbinh} từ 1-3 giờ tới')
 hb_frame_13h.grid(row=3,column=1,pady=(0,5),sticky="w")
 checkbutton_hb_now, checkbutton_hb_13h=pr.odd_check_buttons(name_hbinh,hb_frame_now,hb_frame_13h,chks_hb,chks_hb_13h,3,10.5)
 #Lao_Cai
 lcai_frame_now=tk.LabelFrame(provivce_wea_now,text=name_lcai)
 lcai_frame_now.grid(row=4,column=0,pady=(0,5),sticky="w")
-lcai_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_lcai + " từ 1-3 giờ tới")
+lcai_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=f'{name_lcai} từ 1-3 giờ tới')
 lcai_frame_13h.grid(row=4,column=1,pady=(0,5),sticky="w")
 checkbutton_lcai_now, checkbutton_lcai_13h=pr.odd_check_buttons(name_lcai,lcai_frame_now,lcai_frame_13h,chks_lcai,
                                                                 chks_lcai_13h,1,10.5)
 #Yen_Bai
 ybai_frame_now=tk.LabelFrame(provivce_wea_now,text=name_ybai)
 ybai_frame_now.grid(row=5,column=0,pady=(0,5),sticky="w")
-ybai_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=name_ybai + "  từ 1-3 giờ tới")
+ybai_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=f'{name_ybai} từ 1-3 giờ tới')
 ybai_frame_13h.grid(row=5,column=1,pady=(0,5),sticky="w")
 checkbutton_yb_now, checkbutton_yb_13h=pr.odd_check_buttons(name_ybai,ybai_frame_now,ybai_frame_13h,chks_yb,chks_yb_13h,1,9.0)
 
@@ -833,13 +922,14 @@ person_send1.grid(row=0,column=7)
 frame_save_buttons=tk.Frame(save_frame)
 frame_save_buttons.grid(row=1,column=0)
 
-save_news=tk.Button(frame_save_buttons,text="Lưu tin",width=12, height=2,bg='lightblue',command=saving_news,cursor='hand2')
+save_news=tk.Button(frame_save_buttons,text="Lưu tin",width=12, height=2,bg='lightblue',
+                    cursor='hand2',command=saving_news)
 save_news.grid(row=0,column=0,padx=(30,20))
-send_ttram=tk.Button(frame_save_buttons,text="Gửi duyệt tin", height=2,width=12,
-                     command=lambda:send_mail_button(1),bg='lightblue',cursor='hand2')
+send_ttram=tk.Button(frame_save_buttons,text="Gửi duyệt tin", height=2,width=12,bg='lightblue',
+                     cursor='hand2',command=lambda:send_mail_button(1))
 send_ttram.grid(row=0,column=1,padx=20)
 send_all=tk.Button(frame_save_buttons,text="Phát tin", width=12,height=2,bg='lightblue', 
-                   command=lambda:send_mail_button(0),cursor='hand2')
+                  cursor='hand2',command=lambda:send_mail_button(0))
 send_all.grid(row=0,column=2,padx=(20,30))
 
 reset_news=tk.Button(frame_save_buttons,text="Làm mới",width=12, height=2,command=clear_button,

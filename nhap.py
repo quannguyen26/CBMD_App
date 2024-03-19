@@ -1,22 +1,21 @@
-import threading
-import time
+import sqlite3
 
-def worker():
-    """Thread worker function"""
-    print('Worker is starting')
-    time.sleep(2)  # Giả sử công việc mất 2 giây
-    print('Worker is finished')
+# Kết nối đến cơ sở dữ liệu SQLite
+conn = sqlite3.connect('database/cbmd_database_2024.db')
+cursor = conn.cursor()
 
-# Tạo một thread mới để chạy hàm worker
-t = threading.Thread(target=worker)
+# Số cần kiểm tra
+so_can_kiem_tra = 65
 
-# Khởi động thread
-t.start()
+# Truy vấn để kiểm tra xem số đã tồn tại trong cơ sở dữ liệu hay chưa
+cursor.execute("SELECT COUNT(*) FROM cbmd_news WHERE id_news = ?", (so_can_kiem_tra,))
+ket_qua = cursor.fetchone()
+conn.close()
+# Lấy kết quả từ tuple và kiểm tra
+if ket_qua[0] > 0:
+    print(f"Số {so_can_kiem_tra} đã tồn tại trong cơ sở dữ liệu.")
+else:
+    print(f"Số {so_can_kiem_tra} chưa tồn tại trong cơ sở dữ liệu.")
 
-# Đợi cho đến khi thread t hoàn thành
-t.join()
+# Đóng kết nối
 
-print('Main Thread: Waiting for the worker thread to complete.')
-
-# Khi t.join() hoàn thành, chương trình chính sẽ tiếp tục thực thi
-print('Main Thread: All done.')
