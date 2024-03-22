@@ -62,12 +62,16 @@ lines = processed_text_2.strip().split('\n')
 
 # Xử lý từng dòng để tạo từ điển
 for line in lines:
-    district, province = line.split(', ')
-    province = province.strip()  # Loại bỏ các khoảng trắng dư thừa
-    if province in province_districts:
-        province_districts[province].append(district)
-    else:
-        province_districts[province] = [district]
+    # Phân tách dữ liệu theo dấu phẩy
+    parts = line.split(', ')
+    # Kiểm tra xem có đủ phần tử hay không
+    if len(parts) == 2:
+        district, province = parts
+        province = province.strip()  # Loại bỏ các khoảng trắng dư thừa
+        if province in province_districts:
+            province_districts[province].append(district)
+        else:
+            province_districts[province] = [district]
 
 # In ra từ điển
 specified_provinces = {'Lai Châu': [],'Điện Biên': [],'Sơn La': [],'Hòa Bình': [],'Lào Cai': [],'Yên Bái': []}

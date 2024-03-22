@@ -62,75 +62,75 @@ def check_in_sql(myresult_now,myresult_13h,districts,checkbutton_now,checkbutton
       for name in myresult_13h.split(", "):
          for name_var,chk1,chk2 in zip(districts,checkbutton_13h[:-1],checkbutton_now[:-1]): 
             if name ==name_var:chk1.select(),chk2.configure(state="disabled") 
-def searh():
+def searh_database():
    cbmd_db = sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
    mycursor = cbmd_db.cursor()
    mycursor.execute("SELECT MAX(id_news) FROM cbmd_news")
    id_news=mycursor.fetchone()[0]
+   mycursor.execute("SELECT COUNT(*) FROM cbmd_news WHERE id_news = ?", (searh_ent_var.get(),))
+   ket_qua = mycursor.fetchone()
    if id_news==None:
       id_news=1
    else:
       id_news=id_news+1
-   if searh_ent_var.get()>= id_news:
+   
+   if searh_ent_var.get()>= id_news or ket_qua[0]==0:
       messagebox.showerror('Lỗi',f'Không có bản tin số {str(searh_ent_var.get())}')
       cbmd_db.close()
    else:
-      try:
-         clear_button(for_=1)
-         query="SELECT * FROM cbmd_news WHERE id_news= ?"
-         mycursor.execute(query,(searh_ent_var.get(),))
-         myresult = mycursor.fetchone()
-         number_news_ent_var.set(myresult[0])
-         h_weather_now_var.set(myresult[1][:2])
-         m_weather_now_var.set(myresult[1][3:5])
-         date_now_ent_var.set(myresult[2])
-         kind_news_cbb.set(myresult[3])
-         direc_cbb.set(myresult[4])
-         velo_cbb.set(myresult[5])
-         zmax_spin_var.set(myresult[6])
-         for chk in chks_max:chk.set(False)
-         for name in myresult[7].split(", "):
-            for name_var, chk in zip(province_names,chks_max): 
-               if name ==name_var:chk.set(True) 
-         charac_pre.set(myresult[8]) 
-         hail_var.set(myresult[9])
-         h_time_send_var.set(myresult[10][:2])
-         m_time_send_var.set(myresult[10][3:5])
-         day_time_send_var.set(myresult[11])
-         person_send_var.set(myresult[12])
-         binary_data = myresult[13]
-         img = Image.open(io.BytesIO(binary_data))
-         img.save(resource_path(f'radar_images\\{str(myresult[0])}.png'))
-         img=img.resize((520,460))
-         img=ImageTk.PhotoImage(img)
-         image_label.configure(image=img)
-         image_label.image=img
-         link_pic.insert(0,resource_path(f'radar_images\\{str(myresult[0])}.png'))
-         check_in_sql(myresult[14],myresult[15],pr.province_districts["Lai Châu"],checkbutton_lc_now,checkbutton_lc_13h)
-         check_in_sql(myresult[16],myresult[17],pr.province_districts["Điện Biên"],checkbutton_db_now,checkbutton_db_13h)
-         check_in_sql(myresult[18],myresult[19],pr.province_districts["Sơn La"],checkbutton_sl_now,checkbutton_sl_13h)
-         check_in_sql(myresult[20],myresult[21],pr.province_districts["Hòa Bình"],checkbutton_hb_now,checkbutton_hb_13h)
-         check_in_sql(myresult[22],myresult[23],pr.province_districts["Lào Cai"],checkbutton_lcai_now,checkbutton_lcai_13h)
-         check_in_sql(myresult[24],myresult[25],pr.province_districts["Yên Bái"],checkbutton_yb_now,checkbutton_yb_13h)
-         cbmd_db.close()
-         update = dict_update()
-         dict1.update(update)
-         obser=person_idnews()
-         if obser!=person_send_var.get():
-            update_news["state"] ="disabled"
-            send_ttram["state"]="disabled"
-            send_all["state"]="disabled"
-            save_news["state"]="disabled"
-         else:
-            update_news["state"] ="normal"
-            send_ttram["state"]="normal"
-            send_all["state"]="normal"
-            save_news["state"]="normal"
-      except:
-         messagebox.showerror('Lỗi',f'Không có bản tin số {str(searh_ent_var.get())}')
-         cbmd_db.close()
-
-#### Def for save information in database #######      
+      clear_button(for_=1)
+      query="SELECT * FROM cbmd_news WHERE id_news= ?"
+      mycursor.execute(query,(searh_ent_var.get(),))
+      myresult = mycursor.fetchone()
+      number_news_ent_var.set(myresult[0])
+      h_weather_now_var.set(myresult[1][:2])
+      m_weather_now_var.set(myresult[1][3:5])
+      date_now_ent_var.set(myresult[2])
+      kind_news_cbb.set(myresult[3])
+      direc_cbb.set(myresult[4])
+      velo_cbb.set(myresult[5])
+      zmax_spin_var.set(myresult[6])
+      for chk in chks_max:chk.set(False)
+      for name in myresult[7].split(", "):
+         for name_var, chk in zip(province_names,chks_max): 
+            if name ==name_var:chk.set(True) 
+      charac_pre.set(myresult[8]) 
+      hail_var.set(myresult[9])
+      h_time_send_var.set(myresult[10][:2])
+      m_time_send_var.set(myresult[10][3:5])
+      day_time_send_var.set(myresult[11])
+      person_send_var.set(myresult[12])
+      binary_data = myresult[13]
+      img = Image.open(io.BytesIO(binary_data))
+      img.save(resource_path(f'radar_images\\{str(myresult[0])}.png'))
+      img=img.resize((520,460))
+      img=ImageTk.PhotoImage(img)
+      image_label.configure(image=img)
+      image_label.image=img
+      link_pic.insert(0,resource_path(f'radar_images\\{str(myresult[0])}.png'))
+      check_in_sql(myresult[14],myresult[15],pr.province_districts["Lai Châu"],checkbutton_lc_now,checkbutton_lc_13h)
+      check_in_sql(myresult[16],myresult[17],pr.province_districts["Điện Biên"],checkbutton_db_now,checkbutton_db_13h)
+      check_in_sql(myresult[18],myresult[19],pr.province_districts["Sơn La"],checkbutton_sl_now,checkbutton_sl_13h)
+      check_in_sql(myresult[20],myresult[21],pr.province_districts["Hòa Bình"],checkbutton_hb_now,checkbutton_hb_13h)
+      check_in_sql(myresult[22],myresult[23],pr.province_districts["Lào Cai"],checkbutton_lcai_now,checkbutton_lcai_13h)
+      check_in_sql(myresult[24],myresult[25],pr.province_districts["Yên Bái"],checkbutton_yb_now,checkbutton_yb_13h)
+      cbmd_db.close()
+      update = dict_update()
+      dict1.update(update)
+      obser=person_idnews()
+      if obser!=person_send_var.get():
+         update_news["state"] ="disabled"
+         send_ttram["state"]="disabled"
+         send_all["state"]="disabled"
+         save_news["state"]="disabled"
+      else:
+         update_news["state"] ="normal"
+         send_ttram["state"]="normal"
+         send_all["state"]="normal"
+         save_news["state"]="normal"   
+'''
+Def for save information in database
+'''      
 def byte_string(image_name):
    with open(image_name, 'rb') as image_file:
       encoded_string = image_file.read()
@@ -190,11 +190,11 @@ def update_database(for_=0):
    if len([f for f in glob.glob(os.path.join(resource_path("news/"), "*")) if os.path.isfile(f)])==0:
       messagebox.showerror("Lỗi","Chưa lưu tin")
    else:
-      conn = sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
-      cursor = conn.cursor()
-      cursor.execute("SELECT COUNT(*) FROM cbmd_news WHERE id_news = ?", (number_news_ent_var.get(),))
-      ket_qua = cursor.fetchone()
-      conn.close()
+      cbmd_db = sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
+      mycursor = cbmd_db.cursor()
+      mycursor.execute("SELECT COUNT(*) FROM cbmd_news WHERE id_news = ?", (number_news_ent_var.get(),))
+      ket_qua = mycursor.fetchone()
+      cbmd_db.close()
       if ket_qua[0] > 0:
          try:
             old_file_path=get_linkfile_database()
@@ -435,6 +435,7 @@ def saving_news():
             try:
                update = dict_update()
                dict1.update(update)
+
                doc.save(resource_path(file_path))
                messagebox.showinfo("Lưu tin", "Đã lưu bản tin: "+name_file)
             except:
@@ -469,20 +470,24 @@ def custom_round_minutes(dt):
 def clear_button(for_=0):
    '''
    Def for clear informations on app
+   :for_: 0 for all, 0 for search entry
    '''
    def clear():
       global dict1,link_pic,name_file
       change_to_now()
+      with open('my_list.txt', 'r', encoding='utf-8') as file:
+         content = file.read()
+         original_list = content.splitlines()
       rounded_time,after_15p = custom_round_minutes(datetime.now())
-      kind_news_cbb.set("CẢNH BÁO MƯA DÔNG")
+      kind_news_cbb.set(original_list[0])
       lastest_id=lastest_idnews()
       number_news_ent_var.set(lastest_id+1)
       date_now_ent_var.set(rounded_time[0:10])
       h_weather_now_var.set(rounded_time[11:13])
       m_weather_now_var.set(rounded_time[14:16])
       zmax_spin_var.set(40)
-      velo_cbb.set('20 – 25')
-      direc_cbb.set('')
+      velo_cbb.set(original_list[2])
+      direc_cbb.set(original_list[1])
       for chk in chks_max:chk.set(False)
       for chks_now,chks_13h in zip(all_chks_now,all_chks_13h):
          for chk_now,chk_13h in zip(chks_now,chks_13h):
@@ -494,8 +499,8 @@ def clear_button(for_=0):
          for j in chks:
             j.configure(state="normal")  
          #for chk in for_clear_all_var:chk.set(False)
-      charac_pre.set("mưa, mưa rào và dông")
-      hail_var.set(0)
+      charac_pre.set(original_list[3])
+      hail_var.set(int(original_list[4]))
       day_time_send_var.set(after_15p[0:10])
       h_time_send_var.set(after_15p[11:13])
       m_time_send_var.set(after_15p[14:16])
@@ -634,8 +639,8 @@ def send_mail_button(ed_send):
          messagebox.showerror("Lỗi","Không gửi được mail")
       
    if check_internet_connection():
-      #Read mail edress from dong_tpl\\mail.txt   
-      with open(resource_path('dong_tpl\\mail.txt'), 'r') as file:
+      #Read mail edress from dong_tpl\\mail_adresses.txt   
+      with open(resource_path('dong_tpl\\mail_adresses.txt'), 'r') as file:
          content_list = [line.strip() for line in file.readlines() if not line.startswith('#')]   
       #Chọn tới các địa chỉ: 0=các địa chỉ; 1= trưởng trạm
       if ed_send==0: #Tới các địa chỉ
@@ -645,20 +650,23 @@ def send_mail_button(ed_send):
             if number_news_ent_var.get() > lastest_id:
                try:
                   send_mail(", ".join(content_list[:]),update_progress,"phat_tin")
-               except:
-                  pass
+               except Exception as e:
+                  print(e)
                else:
                   save_file()
                   saving_database()
                   print("Gửi tới các địa chỉ")
+                  with open('my_list.txt', 'w', encoding='utf-8') as file:
+                     for item in [kind_news_cbb.get(), direc_cbb.get(), velo_cbb.get(),charac_pre.get(),hail_var.get()]:
+                        file.write(str(item) + '\n')
                   clear_button()
             else:
                ask_update=messagebox.askokcancel("Thông báo !","Bản tin này đã từng được gửi, bạn có muốn gửi lại?")
                if ask_update:
                   try:
                      send_mail(", ".join(content_list[:]),update_progress,"phat_lai")
-                  except:
-                     pass
+                  except Exception as e:
+                     print(e)
                   else:
                      update_database()
                      print("Gửi tới các địa chỉ")    
@@ -668,7 +676,7 @@ def send_mail_button(ed_send):
          dict2=dict_update()
          if dict1 == dict2:
            try:
-            send_mail(content_list[-1],update_progress,"gui_duyet")
+            Thread(target=send_mail,args=(content_list[-1],update_progress,"gui_duyet")).start()
             print("Gửi tới trưởng trạm")
            except:
               pass
@@ -755,7 +763,7 @@ tk.Label(window, text='BẢN TIN CẢNH BÁO MƯA DÔNG TRÊN KHU VỰC MIỀN N
 searh_ent_var=tk.IntVar(value="")
 searh_ent=tk.Entry(window,textvariable=searh_ent_var,width=15,font=("Times New Roman",16))
 searh_ent.place(x=870,y=38)
-searh_button=tk.Button(window,text="Tìm kiếm",font=("Times New Roman",11),width=10,command=searh,cursor='hand2')
+searh_button=tk.Button(window,text="Tìm kiếm",font=("Times New Roman",11),width=10,command=searh_database,cursor='hand2')
 searh_button.place(x=1050,y=37)
 frame=tk.Frame(window,bg="skyblue")
 frame.pack(padx=20,pady=10)
@@ -783,6 +791,13 @@ now_button.grid(row=0, column=6,padx=(45,0))
 h_1_3_next=tk.Button(information_frame1,text="Từ 1-3 giờ tới ",width=20,command=change_to_1_3h_next,cursor='hand2')
 h_1_3_next.grid(row=0, column=7,padx=(30,82))
 
+def update_time_spinbox():
+   input_datetime = datetime.strptime(f'{date_now_ent_var.get()} {h_weather_now_var.get()}:{m_weather_now_var.get()}', '%d/%m/%Y %H:%M')
+   output_datetime = input_datetime + timedelta(minutes=15)
+   output_string = output_datetime.strftime('%d/%m/%Y %H:%M')
+   h_time_send_var.set(output_string[11:13])
+   m_time_send_var.set(output_string[14:16])
+   day_time_send_var.set(output_string[0:10])
 #frame2_left
 ##weather_now_informations
 weather_now_frame1=tk.Frame(frame,highlightbackground="black", highlightthickness=1)
@@ -791,16 +806,16 @@ weather_now_frame1.grid(row=1,column=0,sticky="W", pady=(5,0))
 info_wea_now=tk.Frame(weather_now_frame1)
 info_wea_now.grid(row=0,column=0,pady=(10,0),padx=10)
 tk.Label(info_wea_now,text="Thời gian:").grid(row=0,column=0)
-
-h_weather_now=tk.Spinbox(info_wea_now,from_=0,to=23,textvariable=h_weather_now_var, width=3,format="%02.0f",wrap=True)
+h_weather_now=tk.Spinbox(info_wea_now,from_=0,to=23,textvariable=h_weather_now_var, 
+                         width=3,format="%02.0f",wrap=True,command=update_time_spinbox)
 h_weather_now.grid(row=0,column=1)
 tk.Label(info_wea_now,text=":").grid(row=0,column=2)
-
-m_weather_now=tk.Spinbox(info_wea_now,from_=0,to=50, width=3,textvariable=m_weather_now_var, increment=10,format="%02.0f",wrap=True)
+m_weather_now=tk.Spinbox(info_wea_now,from_=0,to=50, width=3,textvariable=m_weather_now_var, 
+                         increment=10,format="%02.0f",wrap=True,command=update_time_spinbox)
 m_weather_now.grid(row=0,column=3)
 
 tk.Label(info_wea_now,text="Zmax:").grid(row=0,column=4, padx=(10,0))
-zmax_spin=tk.Spinbox(info_wea_now,from_=40,to=62,textvariable=zmax_spin_var, width=5,wrap=True)
+zmax_spin=tk.Spinbox(info_wea_now,from_=40,to=65,textvariable=zmax_spin_var, width=5,wrap=True)
 zmax_spin.grid(row=0,column=5)
 
 tk.Label(info_wea_now,text="Hướng dịch chuyển:").grid(row=0,column=6, padx=(10,0))
