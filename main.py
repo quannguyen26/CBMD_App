@@ -28,6 +28,9 @@ from threading import Thread
 #### Def for get lastest id_news set for id_news entry, allway make a database base on year when open app
 year_database_main=datetime.now().strftime("%d/%m/%Y")[6:10]
 def lastest_idnews():
+    '''
+    def for get lastest id news
+    '''
     cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
     mycursor = cbmd_db.cursor()
     mycursor.execute("""CREATE TABLE IF NOT EXISTS cbmd_news(
@@ -48,7 +51,6 @@ def lastest_idnews():
     if id_news==None:
       id_news=0
     return id_news
-###### Search in database   
 ###### Def for searching news from Database ###
 def check_in_sql(myresult_now,myresult_13h,districts,checkbutton_now,checkbutton_13h): 
    if myresult_now =="Tất cả":
@@ -63,6 +65,9 @@ def check_in_sql(myresult_now,myresult_13h,districts,checkbutton_now,checkbutton
          for name_var,chk1,chk2 in zip(districts,checkbutton_13h[:-1],checkbutton_now[:-1]): 
             if name ==name_var:chk1.select(),chk2.configure(state="disabled") 
 def searh_database():
+   '''
+   def for searh older news and fill in screeen
+   '''
    cbmd_db = sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
    mycursor = cbmd_db.cursor()
    mycursor.execute("SELECT MAX(id_news) FROM cbmd_news")
@@ -127,10 +132,8 @@ def searh_database():
          update_news["state"] ="normal"
          send_ttram["state"]="normal"
          send_all["state"]="normal"
-         save_news["state"]="normal"   
-'''
-Def for save information in database
-'''      
+         save_news["state"]="normal"
+##############   
 def byte_string(image_name):
    with open(image_name, 'rb') as image_file:
       encoded_string = image_file.read()
@@ -145,6 +148,9 @@ def save_provinces(all_chk,districts):
             lc="Tất cả"
    return lc
 def saving_database():
+   '''
+   def for save news into database (sqlie3)
+   '''
    cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
    mycursor=cbmd_db.cursor()
    query='''INSERT INTO cbmd_news (id_news,time_now,date_now,kind_news,Derection,Velocity,Zmax,location_zmax,
@@ -167,11 +173,12 @@ def saving_database():
           path_file_news)
    mycursor.execute(query,val)
    cbmd_db.commit()
-   cbmd_db.close()
-   
-####Def for get path file news from database##
-#Hàm để lấy link của file_name đã lưu sử dụng trong việc xóa file cũ thay fiel mới
+   cbmd_db.close()  
+#########
 def get_linkfile_database():
+   '''
+   def to get path news file from database base on number of news
+   '''
    cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
    mycursor = cbmd_db.cursor()
    query="SELECT name_file FROM cbmd_news WHERE id_news= ?"
@@ -179,8 +186,7 @@ def get_linkfile_database():
    link_news = mycursor.fetchone()[0]
    cbmd_db.close()
    return link_news
-
-####  #####
+#########
 def update_database(for_=0): 
    '''
    Def for update in database
@@ -231,8 +237,11 @@ def update_database(for_=0):
       clear_button()
       if for_==1:
          messagebox.showinfo("Cập nhật","Cập nhật thành công")
-####Def for update checkbutton location of ZMax for 2 location
+##############
 def update_max_checkbuttons():
+    '''
+    Def for update location of ZMax (checkbuttons) just for (limit) 2 location
+    '''
     checked_count = sum(var.get() for var in chks_max)
     if checked_count >= 2:
         for var, checkbox in zip(chks_max, checkboxes_max):
@@ -241,8 +250,11 @@ def update_max_checkbuttons():
     else:
         for checkbox in checkboxes_max:
             checkbox.config(state=tk.NORMAL)  
-##Def for change lastesr news from fill new_entry_var ######
+########
 def update_label_img(event):
+    '''
+    Def for change lastesr news from fill new_entry_var
+    '''
     try:
         value = number_news_ent_var.get()
         lastest_id=lastest_idnews()
@@ -271,20 +283,25 @@ def update_label_img(event):
         pass
         # Xử lý trường hợp nếu giá trị không phải là số
          #messagebox.showerror("Lỗi","Giá trị nhập vào không đúng")
-    
-## Def for change bettew now/1_3h weather button ######
+###########
 def change_to_now():
+   '''
+   Def for button that change to now weather
+   '''
    weather_now_frame1.grid(row=1,column=0,sticky="W",pady=(5,0))
    weather_1_3h.grid_forget()
    now_button.configure(bg='lightblue')
    h_1_3_next.configure(bg="#f0f0f0")
+###########
 def change_to_1_3h_next():
+   '''
+   Def for button that change to 1-3h next weather
+   '''
    weather_1_3h.grid(row=1,column=0,sticky="W",pady=(5,0))
    weather_now_frame1.grid_forget()
    h_1_3_next.configure(bg='lightblue')
    now_button.configure(bg="#f0f0f0")
-
-##### Def to get relative_path
+###########
 def resource_path(relative_path):
     """ 
     Get absolute path to resource, works for dev and for PyInstaller 
@@ -295,7 +312,7 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path) 
-
+####################
 def sniping_image():
    ''' 
    Def to snipping images 
@@ -321,13 +338,13 @@ def sniping_image():
    except:
       pass
    window.deiconify()
-
+################
 def my_upd(*args):
     '''
     Funtion to update now date for sending date
     '''
     day_time_send_var.set(date_now_ent_var.get())
-
+##############
 def person_idnews():
    ######## Def to update for require must save ######
    cbmd_db=sqlite3.connect(f'database/cbmd_database_{year_database_main}.db')
@@ -337,7 +354,7 @@ def person_idnews():
    #number_news_ent_var.set(id_news)
    cbmd_db.close()
    return observer
-######
+##############
 def dict_update():
    '''Def to update for require must save 
    '''
@@ -442,7 +459,6 @@ def saving_news():
                messagebox.showerror("Lỗi","Không lưu được tin")
          else:
             messagebox.showerror("Lỗi","Lỗi vị trí Zmax")
-
 ##########   #########
 def custom_round_minutes(dt):
     '''
@@ -466,7 +482,7 @@ def custom_round_minutes(dt):
     rounded_time=dt.replace(hour=rounded_hour,minute=rounded_minute)
     after_15p=rounded_time+ timedelta(minutes=15)
     return rounded_time.strftime("%d/%m/%Y %H:%M"),after_15p.strftime("%d/%m/%Y %H:%M")
-##########  #################
+##########  
 def clear_button(for_=0):
    '''
    Def for clear informations on app
@@ -528,8 +544,7 @@ def clear_button(for_=0):
       clear()
    elif for_==1:
       clear()
-
-########### ###########
+###########
 def save_file():
       '''
       Def to Save file news into folder
@@ -544,7 +559,7 @@ def save_file():
             os.makedirs(path_folder)
          shutil.move(resource_path("news\\"+name_file), path_folder)
          path_file_news=resource_path(path_folder+"\\"+name_file)
-#############
+###########
 def check_internet_connection(host="8.8.8.8", port=53, timeout=3):
       '''
       Def for checking internet connection
@@ -582,7 +597,6 @@ def open_anydesk():
       process = subprocess.run(command, shell=True, check=True, text=True)
    else:
       messagebox.showerror("Lỗi","Không có kết nối Internet")
-
 #########
 def send_mail_button(ed_send):
    '''
@@ -757,7 +771,6 @@ chks_yb_13h = [tk.BooleanVar() for i in pr.province_districts["Yên Bái"]]
 all_chks_now=[chks_lc,chks_db,chks_sl,chks_hb,chks_lcai,chks_yb]
 all_chks_13h=[chks_lc_13h,chks_db_13h,chks_sl_13h,chks_hb_13h,chks_lcai_13h,chks_yb_13h]
 ###########
-
 tk.Label(window, text='BẢN TIN CẢNH BÁO MƯA DÔNG TRÊN KHU VỰC MIỀN NÚI PHÍA BẮC',
          bg="skyblue",font=("Times New Roman",18)).pack(fill="x",pady=(5,25))
 searh_ent_var=tk.IntVar(value="")
@@ -791,13 +804,7 @@ now_button.grid(row=0, column=6,padx=(45,0))
 h_1_3_next=tk.Button(information_frame1,text="Từ 1-3 giờ tới ",width=20,command=change_to_1_3h_next,cursor='hand2')
 h_1_3_next.grid(row=0, column=7,padx=(30,82))
 
-def update_time_spinbox():
-   input_datetime = datetime.strptime(f'{date_now_ent_var.get()} {h_weather_now_var.get()}:{m_weather_now_var.get()}', '%d/%m/%Y %H:%M')
-   output_datetime = input_datetime + timedelta(minutes=15)
-   output_string = output_datetime.strftime('%d/%m/%Y %H:%M')
-   h_time_send_var.set(output_string[11:13])
-   m_time_send_var.set(output_string[14:16])
-   day_time_send_var.set(output_string[0:10])
+
 #frame2_left
 ##weather_now_informations
 weather_now_frame1=tk.Frame(frame,highlightbackground="black", highlightthickness=1)
@@ -806,16 +813,29 @@ weather_now_frame1.grid(row=1,column=0,sticky="W", pady=(5,0))
 info_wea_now=tk.Frame(weather_now_frame1)
 info_wea_now.grid(row=0,column=0,pady=(10,0),padx=10)
 tk.Label(info_wea_now,text="Thời gian:").grid(row=0,column=0)
+def update_time_spinbox():
+   input_datetime = datetime.strptime(f'{date_now_ent_var.get()} {h_weather_now_var.get()}:{m_weather_now_var.get()}', '%d/%m/%Y %H:%M')
+   output_datetime = input_datetime + timedelta(minutes=15)
+   output_string = output_datetime.strftime('%d/%m/%Y %H:%M')
+   h_time_send_var.set(output_string[11:13])
+   m_time_send_var.set(output_string[14:16])
+   day_time_send_var.set(output_string[0:10])
+def update_time_send_spinbox():
+   input_datetime_now = datetime.strptime(f'{date_now_ent_var.get()} {h_weather_now_var.get()}:{m_weather_now_var.get()}', '%d/%m/%Y %H:%M')
+   input_datetime_send= datetime.strptime(f'{day_time_send_var.get()} {h_time_send_var.get()}:{m_time_send_var.get()}', '%d/%m/%Y %H:%M')
+   if input_datetime_send < input_datetime_now + timedelta(minutes=9):# or input_datetime_send> input_datetime_now + timedelta(minutes=21):
+      update_time_spinbox()
+
 h_weather_now=tk.Spinbox(info_wea_now,from_=0,to=23,textvariable=h_weather_now_var, 
-                         width=3,format="%02.0f",wrap=True,command=update_time_spinbox)
+                         width=3,format="%02.0f",wrap=True,state='readonly',readonlybackground='white',command=update_time_spinbox)
 h_weather_now.grid(row=0,column=1)
 tk.Label(info_wea_now,text=":").grid(row=0,column=2)
 m_weather_now=tk.Spinbox(info_wea_now,from_=0,to=50, width=3,textvariable=m_weather_now_var, 
-                         increment=10,format="%02.0f",wrap=True,command=update_time_spinbox)
+                         increment=10,format="%02.0f",wrap=True,state='readonly',readonlybackground='white',command=update_time_spinbox)
 m_weather_now.grid(row=0,column=3)
 
 tk.Label(info_wea_now,text="Zmax:").grid(row=0,column=4, padx=(10,0))
-zmax_spin=tk.Spinbox(info_wea_now,from_=40,to=65,textvariable=zmax_spin_var, width=5,wrap=True)
+zmax_spin=tk.Spinbox(info_wea_now,from_=40,to=65,textvariable=zmax_spin_var, width=5,wrap=True,state='readonly',readonlybackground='white')
 zmax_spin.grid(row=0,column=5)
 
 tk.Label(info_wea_now,text="Hướng dịch chuyển:").grid(row=0,column=6, padx=(10,0))
@@ -829,7 +849,6 @@ direc_cbb.grid(row=0,column=7)
 tk.Label(info_wea_now,text="Vận tốc:").grid(row=0,column=8, padx=(12,0))
 velo_cbb=Combobox(info_wea_now,values=["10 – 15","15 – 20","20 – 25", "25 – 30","30 – 35","35 – 40"],width=6,state="readonly")
 velo_cbb.grid(row=0,column=9)
-
 ##location_Max_dbZ
 location_max_frame=tk.Frame(weather_now_frame1)
 location_max_frame.grid(row=1,column=0,pady=5)
@@ -856,7 +875,7 @@ provivce_wea_now=tk.Frame(weather_now_frame1)
 provivce_wea_now.grid(row=3,column=0,pady=(0,5))
 #wether_1_3h_frame
 provivce_wea_1_3h=tk.Frame(weather_1_3h)
-provivce_wea_1_3h.grid(row=1,column=0,pady=5,padx=(54,54))
+provivce_wea_1_3h.grid(row=1,column=0,pady=5,padx=(55.4,55.5))
 #Lai_Chau
 lchau_frame_now=tk.LabelFrame(provivce_wea_now,text=name_lchau)
 lchau_frame_now.grid(row=0,column=0,pady=(0,5),sticky="w")
@@ -880,7 +899,7 @@ hb_frame_now=tk.LabelFrame(provivce_wea_now,text=name_hbinh)
 hb_frame_now.grid(row=3,column=0,pady=(0,5),sticky="w")
 hb_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=f'{name_hbinh} từ 1-3 giờ tới')
 hb_frame_13h.grid(row=3,column=1,pady=(0,5),sticky="w")
-checkbutton_hb_now, checkbutton_hb_13h=pr.odd_check_buttons(name_hbinh,hb_frame_now,hb_frame_13h,chks_hb,chks_hb_13h,3,10.5)
+checkbutton_hb_now, checkbutton_hb_13h=pr.odd_check_buttons(name_hbinh,hb_frame_now,hb_frame_13h,chks_hb,chks_hb_13h,3,10.4)
 #Lao_Cai
 lcai_frame_now=tk.LabelFrame(provivce_wea_now,text=name_lcai)
 lcai_frame_now.grid(row=4,column=0,pady=(0,5),sticky="w")
@@ -893,7 +912,7 @@ ybai_frame_now=tk.LabelFrame(provivce_wea_now,text=name_ybai)
 ybai_frame_now.grid(row=5,column=0,pady=(0,5),sticky="w")
 ybai_frame_13h=tk.LabelFrame(provivce_wea_1_3h,text=f'{name_ybai} từ 1-3 giờ tới')
 ybai_frame_13h.grid(row=5,column=1,pady=(0,5),sticky="w")
-checkbutton_yb_now, checkbutton_yb_13h=pr.odd_check_buttons(name_ybai,ybai_frame_now,ybai_frame_13h,chks_yb,chks_yb_13h,1,9.0)
+checkbutton_yb_now, checkbutton_yb_13h=pr.odd_check_buttons(name_ybai,ybai_frame_now,ybai_frame_13h,chks_yb,chks_yb_13h,1,8.5)
 
 #frame_2_right
 image_save_frame=tk.Frame(frame,bg="skyblue")
@@ -921,13 +940,15 @@ h_frame_save=tk.Frame(save_frame)
 h_frame_save.grid(row=0,column=0, sticky="news", pady=5,padx=(10,0))
 
 tk.Label(h_frame_save,text="Giờ phát tin:").grid(row=0,column=0)
-h_time_send=tk.Spinbox(h_frame_save,textvariable=h_time_send_var,from_=0,to=23, width=3,format="%02.0f",wrap=True)
+h_time_send=tk.Spinbox(h_frame_save,textvariable=h_time_send_var,from_=0,to=23, width=3,
+                       format="%02.0f",wrap=True,state='readonly',readonlybackground='white',command=update_time_send_spinbox)
 h_time_send.grid(row=0,column=1)
 tk.Label(h_frame_save,text=":").grid(row=0,column=2)
-m_time_send=tk.Spinbox(h_frame_save,from_=0,to=55,textvariable=m_time_send_var, width=3, increment=5,format="%02.0f",wrap=True)
+m_time_send=tk.Spinbox(h_frame_save,from_=0,to=55,textvariable=m_time_send_var, width=3, increment=5,
+                       format="%02.0f",wrap=True,state="readonly",readonlybackground='white',command=update_time_send_spinbox)
 m_time_send.grid(row=0,column=3,padx=(0,10))
 tk.Label(h_frame_save,text="Ngày:").grid(row=0,column=4)
-day_time_send=tk.Entry(h_frame_save,textvariable=day_time_send_var,width=15)
+day_time_send=tk.Entry(h_frame_save,textvariable=day_time_send_var,width=15,state='readonly',readonlybackground='white')
 day_time_send.grid(row=0,column=5)
 date_now_ent_var.trace('w',my_upd)
 tk.Label(h_frame_save,text="Người phát tin:").grid(row=0,column=6, padx=(10,0))
@@ -956,16 +977,6 @@ update_news.grid(row=1,column=1,padx=20,pady=5)
 logout_news=tk.Button(frame_save_buttons,text="Đăng xuất", height=2,width=12,
                      bg='lightblue',command=logout,cursor='hand2')
 logout_news.grid(row=1,column=2,padx=(20,30),pady=5)
-
-#Khóa không cho nhập vào spinbox
-def on_click(event):
-    # Hủy bỏ sự kiện chuột và thiết lập trạng thái nhập vào giá trị mới
-    #event.widget.icursor(tk.END)
-    return "break"
-spinboxes = [h_weather_now, m_weather_now, h_time_send, m_time_send,zmax_spin]
-for spinbox in spinboxes:
-    spinbox.bind("<Key>", lambda e: "break")
-    spinbox.bind("<FocusIn>", on_click)
 
 progress_window = tk.Toplevel(window)
 progress_window.title("Gửi mail ...")
