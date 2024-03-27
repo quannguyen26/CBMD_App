@@ -621,7 +621,7 @@ def send_mail_button(ed_send):
       Trạm Ra đa thời tiết Pha Đin<br>
       Đài Khí tượng Thủy văn khu vực Miền núi phía Bắc<br>
       Địa chỉ: Xã Tỏa Tình - Huyện Tuần Giáo - Tỉnh Điện Biên<br>
-      Điện thoại: 0326 086 288 <br>
+      Điện thoại: 0326 086 288<br>
       Email: radaphadintaybac@gmail.com</i></p>''' 
       msg.attach(MIMEText(html, 'html'))
       try:
@@ -662,28 +662,32 @@ def send_mail_button(ed_send):
          if dict1 == dict2 and len([f for f in glob.glob(os.path.join(resource_path("news/"), "*")) if os.path.isfile(f)])!=0:
             lastest_id=lastest_idnews()
             if number_news_ent_var.get() > lastest_id:
-               try:
-                  send_mail(", ".join(content_list[:]),update_progress,"phat_tin")
-               except Exception as e:
-                  print(e)
-               else:
-                  save_file()
-                  saving_database()
-                  print("Gửi tới các địa chỉ")
-                  with open('my_list.txt', 'w', encoding='utf-8') as file:
-                     for item in [kind_news_cbb.get(), direc_cbb.get(), velo_cbb.get(),charac_pre.get(),hail_var.get()]:
-                        file.write(str(item) + '\n')
-                  clear_button()
-            else:
-               ask_update=messagebox.askokcancel("Thông báo !","Bản tin này đã từng được gửi, bạn có muốn gửi lại?")
-               if ask_update:
+               def send():
                   try:
-                     send_mail(", ".join(content_list[:]),update_progress,"phat_lai")
+                     send_mail(", ".join(content_list[:]),update_progress,"phat_tin")
                   except Exception as e:
                      print(e)
                   else:
-                     update_database()
-                     print("Gửi tới các địa chỉ")    
+                     save_file()
+                     saving_database()
+                     print("Gửi tới các địa chỉ")
+                     with open('my_list.txt', 'w', encoding='utf-8') as file:
+                        for item in [kind_news_cbb.get(), direc_cbb.get(), velo_cbb.get(),charac_pre.get(),hail_var.get()]:
+                           file.write(str(item) + '\n')
+                     clear_button()
+               Thread(target=send).start()  
+            else:
+               ask_update=messagebox.askokcancel("Thông báo !","Bản tin này đã từng được gửi, bạn có muốn gửi lại?")
+               if ask_update:
+                  def resend():
+                     try:
+                        send_mail(", ".join(content_list[:]),update_progress,"phat_lai")
+                     except Exception as e:
+                        print(e)
+                     else:
+                        update_database()
+                        print("Gửi tới các địa chỉ")
+                  Thread(target=resend).start()  
          else:
             messagebox.showerror("Lỗi","Chưa lưu bản tin")
       elif ed_send==1: #tới trưởng trạm
@@ -738,8 +742,7 @@ icon_image=ImageTk.PhotoImage(file=resource_path('app_images\\radar.ico'))
 window.iconphoto(False,icon_image)
 def disable_event():
    pass
-#window.protocol("WM_DELETE_WINDOW", disable_event)
-
+window.protocol("WM_DELETE_WINDOW", disable_event)
 #### VARS #####
 searh_ent_var=tk.IntVar(value="")
 number_news_ent_var=tk.IntVar()
@@ -804,7 +807,6 @@ now_button.grid(row=0, column=6,padx=(45,0))
 h_1_3_next=tk.Button(information_frame1,text="Từ 1-3 giờ tới ",width=20,command=change_to_1_3h_next,cursor='hand2')
 h_1_3_next.grid(row=0, column=7,padx=(30,82))
 
-
 #frame2_left
 ##weather_now_informations
 weather_now_frame1=tk.Frame(frame,highlightbackground="black", highlightthickness=1)
@@ -823,7 +825,7 @@ def update_time_spinbox():
 def update_time_send_spinbox():
    input_datetime_now = datetime.strptime(f'{date_now_ent_var.get()} {h_weather_now_var.get()}:{m_weather_now_var.get()}', '%d/%m/%Y %H:%M')
    input_datetime_send= datetime.strptime(f'{day_time_send_var.get()} {h_time_send_var.get()}:{m_time_send_var.get()}', '%d/%m/%Y %H:%M')
-   if input_datetime_send < input_datetime_now + timedelta(minutes=9):# or input_datetime_send> input_datetime_now + timedelta(minutes=21):
+   if input_datetime_send < input_datetime_now + timedelta(minutes=9) or input_datetime_send> input_datetime_now + timedelta(hours=1):
       update_time_spinbox()
 
 h_weather_now=tk.Spinbox(info_wea_now,from_=0,to=23,textvariable=h_weather_now_var, 
@@ -982,13 +984,12 @@ progress_window = tk.Toplevel(window)
 progress_window.title("Gửi mail ...")
 progress_window.geometry("300x80+640+350")
 progress_window.resizable(False,False)
-#progress_window.protocol("WM_DELETE_WINDOW", disable_event)
 progress_window.withdraw()
 progress_window.iconphoto(False,icon_image)
 progress_bar = Progressbar(progress_window, orient=tk.HORIZONTAL, length=200, mode='determinate')
 progress_bar.pack(pady=(20,5))
 progress_label = tk.Label(progress_window, text="0%")
 progress_label.pack()
-
+progress_window.protocol("WM_DELETE_WINDOW", disable_event)
 clear_button()
 window.mainloop()
